@@ -33,5 +33,20 @@ public class PlusMinusLexerTest {
 		assertTrue(result.get(4).equals("plus"));
 		assertTrue(result.get(5).equals("12"));
 	}
+	
+	@Test
+	public void testEmptyString() {
+		List<String> result = this.lexer.lex("");
+		assertTrue(result != null);
+		assertTrue(result.size() == 0);
+	}
+	
+	@Test
+	public void testOnlyNumber() {
+		List<String> result = this.lexer.lex("01234567899876543210");
+		assertTrue(result != null);
+		assertTrue(result.size() == 1);
+		assertTrue(result.get(0).equals("01234567899876543210"));
+	}
 
 }
