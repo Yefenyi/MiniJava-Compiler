@@ -1,1 +1,5 @@
-The lexer code is available in PlusMinusLexer.java. A test suite (PlusMinusLexerTest.java) with various test cases can be found in the test folder. A driver program that uses a file input is PlusMinusDriver.java and is available in the src/driver folder.
+Simple Lexer Deliverable
+
+The lexer code is available in PlusMinusLexer.java.
+A test suite (PlusMinusLexerTest.java) with various test cases can be found in the test folder.
+A driver program that uses a file input is PlusMinusDriver.java and is available in the src/driver folder.
