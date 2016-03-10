@@ -79,5 +79,17 @@ public class PlusMinusLexerTest {
 		assertTrue(result.get(6).equals("plus"));
 		assertTrue(result.get(7).equals("minus"));
 	}
+	
+	@Test
+	public void testStartAndEndWithSymbol() {
+		List<String> result = this.lexer.lex("-684+498+");
+		assertTrue(result != null);
+		assertTrue(result.size() == 5);
+		assertTrue(result.get(0).equals("minus"));
+		assertTrue(result.get(1).equals("684"));
+		assertTrue(result.get(2).equals("plus"));
+		assertTrue(result.get(3).equals("498"));
+		assertTrue(result.get(4).equals("plus"));
+	}
 
 }
