@@ -48,5 +48,36 @@ public class PlusMinusLexerTest {
 		assertTrue(result.size() == 1);
 		assertTrue(result.get(0).equals("01234567899876543210"));
 	}
+	
+	@Test
+	public void testOnlyPlus() {
+		List<String> result = this.lexer.lex("+");
+		assertTrue(result != null);
+		assertTrue(result.size() == 1);
+		assertTrue(result.get(0).equals("plus"));
+	}
+	
+	@Test
+	public void testOnlyMinus() {
+		List<String> result = this.lexer.lex("-");
+		assertTrue(result != null);
+		assertTrue(result.size() == 1);
+		assertTrue(result.get(0).equals("minus"));
+	}
+	
+	@Test
+	public void testPlusMinusSequence() {
+		List<String> result = this.lexer.lex("-+-++-+-");
+		assertTrue(result != null);
+		assertTrue(result.size() == 8);
+		assertTrue(result.get(0).equals("minus"));
+		assertTrue(result.get(1).equals("plus"));
+		assertTrue(result.get(2).equals("minus"));
+		assertTrue(result.get(3).equals("plus"));
+		assertTrue(result.get(4).equals("plus"));
+		assertTrue(result.get(5).equals("minus"));
+		assertTrue(result.get(6).equals("plus"));
+		assertTrue(result.get(7).equals("minus"));
+	}
 
 }
