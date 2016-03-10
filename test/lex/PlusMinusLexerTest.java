@@ -27,11 +27,11 @@ public class PlusMinusLexerTest {
 		assertTrue(result != null);
 		assertTrue(result.size() == 6);
 		assertTrue(result.get(0).equals("123"));
-		assertTrue(result.get(0).equals("plus"));
-		assertTrue(result.get(0).equals("321"));
-		assertTrue(result.get(0).equals("minus"));
-		assertTrue(result.get(0).equals("plus"));
-		assertTrue(result.get(0).equals("12"));
+		assertTrue(result.get(1).equals("plus"));
+		assertTrue(result.get(2).equals("321"));
+		assertTrue(result.get(3).equals("minus"));
+		assertTrue(result.get(4).equals("plus"));
+		assertTrue(result.get(5).equals("12"));
 	}
 
 }
