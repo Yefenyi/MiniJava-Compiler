@@ -25,11 +25,11 @@ RESERVEDWORD: 'class'
 	| 'new'
 	| 'String'
 	| 'main'
-	| 'System.out.println';
-ID : LETTER (LETTER | DIGIT)*;
+	| ('System.out.println' {!('A' <= _input.LA(1) && _input.LA(1) <= 'z' || '0' <= _input.LA(1) && _input.LA(1) <= '9')}?);
 INTEGER	: ( NONZERODIGIT DIGIT* )  | '0';
 OPERATOR: '+' | '-' | '*' | '/' | '<' | '<=' | '>=' | '>' | '==' | '!=' | '&&' | '||' | '!';
 DELIMITER: ';' | '.' | ',' | '=' | '(' | ')' | '{' | '}' | '[' | ']';
+ID : LETTER (LETTER | DIGIT)*;
 
 fragment LETTER	: [a-zA-Z] ;
 fragment DIGIT	: [0-9] ;
