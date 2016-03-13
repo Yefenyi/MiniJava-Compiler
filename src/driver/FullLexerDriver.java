@@ -11,7 +11,7 @@ import lex.ILexer;
 
 public class FullLexerDriver {
 	public static void main(String[] args) {
-		File fileIn = new File("input_output/input2.txt");
+		File fileIn = new File("input_output/input4.txt");
 		BufferedReader br;
 		String inString = "";
 		try {
