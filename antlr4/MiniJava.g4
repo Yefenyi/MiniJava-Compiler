@@ -1,7 +1,7 @@
 grammar MiniJava;
-@header {
-	package antlr4;
-}
+@header {package antlr4;}
+
+tokens { INTEGER, OPERATOR, DELIMITER, ID, RESERVEDWORD }
 // LEXER RULES
 program : token;
 token : INTEGER | OPERATOR | DELIMITER | ID | RESERVEDWORD;
@@ -36,4 +36,4 @@ fragment LETTER	: [a-zA-Z] ;
 fragment DIGIT	: [0-9] ;
 fragment NONZERODIGIT : [1-9] ;
 WS: ([ \n\t\r]+ | COMMENT) -> skip;
-COMMENT: (('/*' .*? '*/') | ('//' .*? [\n\r])) -> skip;
+COMMENT: (('/*' .*? '*/') | ('//' .*? ~[\n\r]*)) -> skip;
