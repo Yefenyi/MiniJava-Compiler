@@ -1,7 +1,6 @@
 grammar MiniJava;
 @header {package antlr4;}
 
-tokens { INTEGER, OPERATOR, DELIMITER, ID, RESERVEDWORD }
 // LEXER RULES
 program : token;
 token : INTEGER | OPERATOR | DELIMITER | ID | RESERVEDWORD;

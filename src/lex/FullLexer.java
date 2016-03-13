@@ -33,7 +33,7 @@ public class FullLexer implements ILexer {
 	public List<String> lex(String toLex) {
 		List<String> out = new ArrayList<String>();
 		ANTLRInputStream input = new ANTLRInputStream(toLex);
-		antlr4.PlusMinusLexer lex = new antlr4.PlusMinusLexer(input);
+		antlr4.MiniJavaLexer lex = new antlr4.MiniJavaLexer(input);
 		List<? extends Token> tokens = lex.getAllTokens();
 		for(Token t : tokens) {
 			out.add(this.getTypeString(t.getType()) + ", " + t.getText());
