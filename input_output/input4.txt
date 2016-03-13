@@ -1,0 +1,30 @@
+/** This is input test 4 */
+class Test4 {
+	public static void main (String[] args) {
+		intTree root = new intTree();
+		root.setContent(50);
+		root.left= new intTree();
+		root.left.content = 1;
+		intTree right = new intTree();
+		right.setContent(100);
+		root.setRight(right);
+		System.out.println(root.left.content);
+		System.out.println(root.content);
+		System.out.println(root.right.content);
+	}
+}
+class intTree{
+	Tree left = null;
+	Tree right = null;
+	int content = 0;
+	public intTree(){}
+	public void setLeft(Tree left){
+		this.left = left;
+	}
+	public void setLeft(Tree right){
+		this.right = right;
+	} 
+	public void setContent(int c){
+		this.content = c;
+	}
+}

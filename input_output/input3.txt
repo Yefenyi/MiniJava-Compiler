@@ -1,0 +1,18 @@
+/** This is input test 3 */
+class Test3 {
+	public static void main (String[] args) {
+		rect r = new rect(1,100);
+		System.out.println(r.area()); 
+	}
+}
+class rect{
+	int w;
+	int h;
+	public rect(int w, int h){
+		this.w = w;
+		this.h = h;
+	}
+	public int area(){
+		return w*h;
+	} 
+}
