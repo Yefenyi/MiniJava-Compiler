@@ -7,10 +7,6 @@ token : INTEGER | OPERATOR | DELIMITER | ID | RESERVEDWORD;
 
 
 // LEXER
-ID : LETTER (LETTER | DIGIT)*;
-INTEGER	: ( NONZERODIGIT DIGIT* )  | '0';
-OPERATOR: '+' | '-' | '*' | '/' | '<' | '<=' | '>=' | '>' | '==' | '!=' | '&&' | '||' | '!';
-DELIMITER: ';' | '.' | ',' | '=' | '(' | ')' | '{' | '}' | '[' | ']';
 RESERVEDWORD: 'class'
 	| 'public'
 	| 'static'
@@ -30,6 +26,10 @@ RESERVEDWORD: 'class'
 	| 'String'
 	| 'main'
 	| 'System.out.println';
+ID : LETTER (LETTER | DIGIT)*;
+INTEGER	: ( NONZERODIGIT DIGIT* )  | '0';
+OPERATOR: '+' | '-' | '*' | '/' | '<' | '<=' | '>=' | '>' | '==' | '!=' | '&&' | '||' | '!';
+DELIMITER: ';' | '.' | ',' | '=' | '(' | ')' | '{' | '}' | '[' | ']';
 
 fragment LETTER	: [a-zA-Z] ;
 fragment DIGIT	: [0-9] ;

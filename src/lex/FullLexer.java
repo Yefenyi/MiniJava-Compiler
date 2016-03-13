@@ -10,15 +10,15 @@ public class FullLexer implements ILexer {
 	
 	private String getTypeString(int type) {
 		switch(type) {
-		case 1:
-			return "ID";
 		case 2:
-			return "Integer";
+			return "ID";
 		case 3:
-			return "Operator";
+			return "Integer";
 		case 4:
-			return "Delimiter";
+			return "Operator";
 		case 5:
+			return "Delimiter";
+		case 1:
 			return "ReservedWord";
 		case 6:
 			return "WHITESPACE SHOULDN'T BE HERE!!";
