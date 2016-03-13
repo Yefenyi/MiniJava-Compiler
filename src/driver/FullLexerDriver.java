@@ -11,7 +11,7 @@ import lex.ILexer;
 
 public class FullLexerDriver {
 	public static void main(String[] args) {
-		File fileIn = new File("input_output/input1.txt");
+		File fileIn = new File("input_output/input2.txt");
 		BufferedReader br;
 		String inString = "";
 		try {
@@ -25,7 +25,6 @@ public class FullLexerDriver {
 			}
 			br.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return;
 		}
