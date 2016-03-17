@@ -53,8 +53,10 @@ public class FullLexerDriver {
 			try {
 				BufferedWriter bw = new BufferedWriter(new FileWriter(fileOut));
 				for(String s : result) {
-					bw.write(s + "\n");
+					bw.write(s);
+					bw.newLine();
 				}
+				bw.close();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
