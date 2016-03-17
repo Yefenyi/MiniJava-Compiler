@@ -2,4 +2,4 @@ The source code for the lexer portion of this project is located in the src/lex 
 We used antlr to generate our lexical parser
 The antlr generated components should be found in the src/antlr4 package
 the inputs we used to test things are found in the input_output folder which containts 4 input examples and 
-	then the corresponding lexical outputs
+	then the corresponding lexical outputs.
