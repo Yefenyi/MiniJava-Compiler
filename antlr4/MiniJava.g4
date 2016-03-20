@@ -128,3 +128,43 @@ fragment DIGIT	: [0-9] ;
 fragment NONZERODIGIT : [1-9] ;
 WS: ([ \n\t\r]+ | COMMENT) -> skip;
 COMMENT: (('/*' .*? '*/') | ('//' .*? ~[\n\r]*)) -> skip;
+/*
+ used to generate first/Follow sets
+ 
+eQE-> cE eQEOPS cE | cE
+eQEOPS ->  EQUALS | NOTEQUALS
+cE-> aOE cEP
+cEP->  cEPOPS aOE cEP | EPSILON
+cEPOPS->  LT | GT | GEQ | LEQ
+aOE-> aSE aOEP
+aOEP-> aOEPOPS aSE aOEP | EPSILON
+aOEPOPS-> AND | OR 
+aSE-> mDE aSEP
+aSEP-> aSEPOPS mDE aSEP	| EPSILON
+aSEPOPS-> ADD | SUB
+mDE-> nE mDEP
+mDEP-> mDEPOPS nE mDEP | EPSILON
+mDEPOPS-> DIVIDE | MULTPY
+nE-> nEOPS nE | dE
+nEOPS-> SUB | BANG
+dE-> hPE dEP
+dEP-> DOT ID LPREN ARGS RPREN dEP | EPSILON
+ARGS-> eQE | eQE COMMA ARGSC | EPSILON
+ARGSC-> eQE | eQE COMMA ARGSC
+hPE-> NEW ID LPREN RPREN | ID | THIS | INTEGER | NULL | TRUE | FALSE | LPREN eQE RPREN
+
+program-> mainClassDec | classes
+classes-> classDec classes | EPSILON
+mainClassDecl-> CLASS ID LCURL PUBLIC STATIC VOID MAIN LPREN STRING LBRACKET RBRACKET ID RPREN LCURL stmt stmts RCURL RCURL
+stmts->stmt stmts | EPSILON
+classDecl-> CLASS ID LBRACKET EXTENDS ID RBRACKET LCURL classVars methodDecs RCURL
+classVars-> classVarDecl classVars | EPSILON
+classVarDecl-> type ID
+methodDecs-> methodDecl methodDecs | EPSILON
+methodDecl-> PUBLIC type ID LPREN formals RPREN LCURL stmts RETURN eQE SEMI RCURL
+formals-> formal | formal COMMA formalsc | EPSILON
+formalsc-> formal | formal COMMA formalsc
+type-> INT | BOOLEAN | ID
+formal-> type ID
+stmt-> type ID ASSIGN eQE SEMI | LCURL stmts RCURL | IF LPREN eQE RPREN stmt ELSE stmt | WHILE LPREN eQE RPREN stmt | SYSTEMPRINT LPREN eQE RPREN SEMI | ID ASSIGN eQE SEMI
+*/
