@@ -34,7 +34,7 @@ mainClassDecl: CLASS ID LCURL PUBLIC STATIC VOID MAIN LPREN STRING
 	LBRACKET RBRACKET ID RPREN LCURL stmt* RCURL RCURL;
 classDecl: CLASS ID (/*nothing*/|(LBRACKET EXTENDS ID RBRACKET)) LCURL
 classVarDecl* methodDecl* RCURL; 
-classVarDecl: type ID;
+classVarDecl: type ID SEMI;
 methodDecl: PUBLIC type ID LPREN (/*nothing*/|formal (COMMA formal)*) RPREN
 	LCURL stmt* RETURN eQE SEMI RCURL;
 type: INT|BOOLEAN|ID;
