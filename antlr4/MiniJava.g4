@@ -40,7 +40,7 @@ methodDecl: PUBLIC type ID LPREN (/*nothing*/|formal (COMMA formal)*) RPREN
 type: INT|BOOLEAN|ID;
 formal: type ID;
 stmt: type ID ASSIGN eQE SEMI
-	|LCURL stmt RCURL
+	|LCURL stmt* RCURL
 	|IF LPREN eQE RPREN stmt ELSE stmt
 	|WHILE LPREN eQE RPREN stmt
 	|SYSTEMPRINT LPREN eQE RPREN SEMI
