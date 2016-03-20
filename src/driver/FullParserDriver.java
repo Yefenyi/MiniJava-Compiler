@@ -17,7 +17,7 @@ import parser.MiniJavaListener;
 public class FullParserDriver {
 	
 	public static void main(String[] args) {
-		String fileName = "testcase00_06";
+		String fileName = "testcase00_07";
 		File fileIn = new File("input_output/ParserFullTests/" + fileName + ".java");
 		BufferedReader br;
 		String inString = "";

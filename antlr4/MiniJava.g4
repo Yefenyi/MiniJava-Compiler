@@ -18,8 +18,9 @@ mDE: nE mDEP;
 mDEP: (DIVIDE|MULTPY) nE mDEP
 	|;
 nE: (SUB|BANG) nE | dE;
-dE: dE DOT ID LPREN (/*nothing*/|eQE (COMMA eQE)*) RPREN
-	|hPE;
+dE: hPE dEP;
+dEP: DOT ID LPREN (/*nothing*/|eQE (COMMA eQE)*) RPREN dEP
+	|;
 hPE: NEW ID LPREN RPREN
 | ID
 | THIS

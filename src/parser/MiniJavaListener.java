@@ -19,7 +19,7 @@ public class MiniJavaListener extends MiniJavaBaseListener {
 	}
 	
 	@Override
-	public void enterEveryRule(@NotNull ParserRuleContext ctx) {
+	public void exitEveryRule(@NotNull ParserRuleContext ctx) {
 		System.out.println(MiniJavaParser.ruleNames[ctx.getRuleIndex()]);
 	}
 	
