@@ -1,6 +1,6 @@
 grammar MiniJava;
 @header {package antlr4;}
-//Grammer Rules
+//Grammar Rules
 //Precedence of operators
 //Lowest first
 eQE: cE(EQUALS|NOTEQUALS)cE 
