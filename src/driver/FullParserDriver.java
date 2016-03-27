@@ -8,6 +8,7 @@ import java.util.Arrays;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -50,10 +51,11 @@ public class FullParserDriver {
 		
 		JFrame frame = new JFrame("Antlr AST");
 		JPanel panel = new JPanel();
+		JScrollPane scrPane = new JScrollPane(panel);
 		TreeViewer viewr = new TreeViewer(Arrays.asList(parser.getRuleNames()),tree);
 		viewr.setScale(1.5);
 		panel.add(viewr);
-		frame.add(panel);
+		frame.add(scrPane);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setSize(200, 200);
 		frame.setVisible(true);
