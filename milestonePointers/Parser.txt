@@ -11,4 +11,4 @@ parse tree, it even highlights the errors in the file
 
 so we don't have any output.txt files for this milestone because most of the information 
 is contained in the graphic window, if you cannot get the code to run, let us know and 
-we can demo it
+we can demo it.
