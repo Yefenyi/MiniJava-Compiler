@@ -1,0 +1,14 @@
+Our parser main is located at  src/driver/FullParserDriver.java
+the input file is specified by the first arg in the command line
+
+the out put is in the following form
+->if errors exist they are output first
+->flat parse tree
+->number of errors
+
+Because the flat parse tree is quite ugly we have a graphical interface to display the 
+parse tree, it even highlights the errors in the file
+
+so we don't have any output.txt files for this milestone because most of the information 
+is contained in the graphic window, if you cannot get the code to run, let us know and 
+we can demo it
