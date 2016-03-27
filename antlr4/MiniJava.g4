@@ -30,18 +30,20 @@ hPE: NEW ID LPREN RPREN
 | FALSE
 | LPREN eQE RPREN;
 
-program: mainClassDecl classDecl*; 
+program: mainClassDecl classDeclList; 
 mainClassDecl: CLASS ID LCURL PUBLIC STATIC VOID MAIN LPREN STRING 
-	LBRACKET RBRACKET ID RPREN LCURL stmt* RCURL RCURL;
+	LBRACKET RBRACKET ID RPREN LCURL stmtList RCURL RCURL;
+classDeclList: classDecl*;
+stmtList: stmt stmtList | ;
 classDecl: CLASS ID (/*nothing*/|(LBRACKET EXTENDS ID RBRACKET)) LCURL
 classVarDecl* methodDecl* RCURL; 
 classVarDecl: type ID SEMI;
 methodDecl: PUBLIC type ID LPREN (/*nothing*/|formal (COMMA formal)*) RPREN
-	LCURL stmt* RETURN eQE SEMI RCURL;
+	LCURL stmtList RETURN eQE SEMI RCURL;
 type: INT|BOOLEAN|ID;
 formal: type ID;
 stmt: type ID ASSIGN eQE SEMI
-	|LCURL stmt* RCURL
+	|LCURL stmtList RCURL
 	|IF LPREN eQE RPREN stmt ELSE stmt
 	|WHILE LPREN eQE RPREN stmt
 	|SYSTEMPRINT LPREN eQE RPREN SEMI

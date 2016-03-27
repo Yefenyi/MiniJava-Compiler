@@ -17,7 +17,7 @@ import parser.MiniJavaListener;
 public class FullParserDriver {
 	
 	public static void main(String[] args) {
-		String fileName = "testcase00_07";
+		String fileName = "testcase00_10";
 		File fileIn = new File("input_output/ParserFullTests/" + fileName + ".java");
 		BufferedReader br;
 		String inString = "";
@@ -41,7 +41,9 @@ public class FullParserDriver {
 		CommonTokenStream tokens = new CommonTokenStream(lexer);
 		
 		MiniJavaParser parser = new MiniJavaParser(tokens);
+		
 		ProgramContext programContext = parser.program();
+		
 		
 		ParseTreeWalker walker = new ParseTreeWalker();
 		MiniJavaListener listener = new MiniJavaListener();
