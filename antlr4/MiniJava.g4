@@ -30,11 +30,9 @@ hPE: NEW ID LPREN RPREN
 | FALSE
 | LPREN eQE RPREN;
 
-program: mainClassDecl classDeclList; 
+program: mainClassDecl classDecl* EOF; 
 mainClassDecl: CLASS ID LCURL PUBLIC STATIC VOID MAIN LPREN STRING 
 	LBRACKET RBRACKET ID RPREN LCURL stmtList RCURL RCURL;
-classDeclList: classDecl*;
-stmtList: stmt stmtList | ;
 classDecl: CLASS ID (/*nothing*/|(LBRACKET EXTENDS ID RBRACKET)) LCURL
 classVarDecl* methodDecl* RCURL; 
 classVarDecl: type ID SEMI;
@@ -48,6 +46,7 @@ stmt: type ID ASSIGN eQE SEMI
 	|WHILE LPREN eQE RPREN stmt
 	|SYSTEMPRINT LPREN eQE RPREN SEMI
 	|ID ASSIGN eQE SEMI;
+stmtList: stmt stmtList | ;
 
 // LEXER RULES
 //program : token;
