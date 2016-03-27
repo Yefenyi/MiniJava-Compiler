@@ -21,7 +21,7 @@ import antlr4.MiniJavaParser;
 public class FullParserDriver {
 	
 	public static void main(String[] args) {
-		String fileName = "testcase00_10";
+		String fileName = "testcase97-03";
 		File fileIn = new File("input_output/ParserFullTests/" + fileName + ".java");
 		BufferedReader br;
 		String inString = "";
@@ -48,6 +48,7 @@ public class FullParserDriver {
 		
 		ParseTree tree = parser.program();
 		System.out.println(tree.toStringTree(parser));
+		System.out.println("Error count: " + parser.getNumberOfSyntaxErrors());
 		
 		JFrame frame = new JFrame("Antlr AST");
 		JPanel panel = new JPanel();
