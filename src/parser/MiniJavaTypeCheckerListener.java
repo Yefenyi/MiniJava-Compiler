@@ -45,12 +45,11 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 			className = ctx.children.get(i).getChild(1).getText();
 			ClassDeclContext classDec = (ClassDeclContext) ctx.children.get(i);
 			ParsedClass parsedClass = new ParsedClass(className);
+			ParsedClass parrentClass = null;
 			if(classDec.getChild(2).getText().toLowerCase().equals("extends")){
 				String parentName = classDec.getChild(3).getText();
-				ParsedClass parrentClass = classMap.get(parentName);
+				parrentClass = classMap.get(parentName);
 				parsedClass.setExtendsClass(parentName);
-				//parsedClass.setNameToField();
-				//parsedClass.setNameToMethod();
 			}
 			for(ParseTree pt : classDec.children) {
 				if(pt instanceof MethodDeclContext) {
@@ -68,7 +67,9 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 					ParsedMethod pMethod = new ParsedMethod(name, returnType, identList, method);
 					if(parsedClass.hasMethod(name)) {
 						this.addError("Method has already been defined: " + name);
-					} else {
+					} else if (parrentClass!=null && !pMethod.validOverride(parrentClass.getNameToMethod().get(name))){
+						this.addError("Cannot overload methods: " + name);
+					}else {
 						parsedClass.addMethod(pMethod);
 					}
 				} else if(pt instanceof ClassVarDeclContext) {
