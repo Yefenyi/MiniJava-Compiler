@@ -17,9 +17,9 @@ import org.antlr.v4.runtime.tree.gui.TreeViewer;
 
 import antlr4.MiniJavaLexer;
 import antlr4.MiniJavaParser;
+public class TypeCheckerDriver {
 
-public class FullParserDriver {
-	
+
 	public static void main(String[] args) {
 		String fileName = "testcase00_04";
 		File fileIn = new File("input_output/ParserFullTests/" + fileName + ".java");
@@ -47,10 +47,13 @@ public class FullParserDriver {
 		MiniJavaParser parser = new MiniJavaParser(tokens);
 		
 		ParseTree tree = parser.program();
+		tree.getChildCount();
+		
+		
 		System.out.println(tree.toStringTree(parser));
 		System.out.println("Error count: " + parser.getNumberOfSyntaxErrors());
 		
-		JFrame frame = new JFrame("Antlr AST");
+		/*JFrame frame = new JFrame("Antlr AST");
 		JPanel panel = new JPanel();
 		JScrollPane scrPane = new JScrollPane(panel);
 		TreeViewer viewr = new TreeViewer(Arrays.asList(parser.getRuleNames()),tree);
@@ -59,7 +62,7 @@ public class FullParserDriver {
 		frame.add(scrPane);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setSize(200, 200);
-		frame.setVisible(true);
+		frame.setVisible(true);*/
 		
 		
 		/*ParseTreeWalker walker = new ParseTreeWalker();
