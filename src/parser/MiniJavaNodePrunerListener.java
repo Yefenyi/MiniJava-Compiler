@@ -80,15 +80,6 @@ public class MiniJavaNodePrunerListener extends MiniJavaBaseListener {
 		}
 	}
 	
-	@Override
-	public void enterStmtList(@NotNull MiniJavaParser.StmtListContext ctx) {
-		if(ctx.children != null && ctx.children.size() == 2) {
-			if(ctx.children.get(1).getChildCount() == 0) {
-				ctx.children.remove(1);
-			}
-		}
-	}
-	
 	public List<String> getGeneratedOutput() {
 		return this.output;
 	}

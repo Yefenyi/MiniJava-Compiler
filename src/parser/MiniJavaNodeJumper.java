@@ -15,6 +15,7 @@ import antlr4.MiniJavaParser.DEContext;
 import antlr4.MiniJavaParser.EQEContext;
 import antlr4.MiniJavaParser.MDEContext;
 import antlr4.MiniJavaParser.NEContext;
+import antlr4.MiniJavaParser.StmtContext;
 import antlr4.MiniJavaParser.StmtListContext;
 
 public class MiniJavaNodeJumper extends MiniJavaBaseListener {
@@ -41,6 +42,7 @@ public class MiniJavaNodeJumper extends MiniJavaBaseListener {
 			}
 			if(node instanceof StmtListContext) {
 				StmtListContext origNode = (StmtListContext)node;
+				
 				while(origNode.getChild(origNode.getChildCount()-1) instanceof StmtListContext) {
 					StmtListContext rightChild = (StmtListContext)origNode.getChild(origNode.getChildCount() - 1);
 					origNode.children.remove(rightChild);
