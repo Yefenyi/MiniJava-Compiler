@@ -20,11 +20,12 @@ import antlr4.MiniJavaLexer;
 import antlr4.MiniJavaParser;
 import parser.MiniJavaNodeJumper;
 import parser.MiniJavaNodePrunerListener;
+import parser.MiniJavaTypeCheckerListener;
 public class TypeCheckerDriver {
 
 
 	public static void main(String[] args) {
-		String fileName = "testcase00_10";
+		String fileName = "testcase00_15";
 		File fileIn = new File("input_output/TypeCheckerFullTests/" + fileName + ".java");
 		BufferedReader br;
 		String inString = "";
@@ -62,6 +63,9 @@ public class TypeCheckerDriver {
 		
 		MiniJavaNodeJumper listener2 = new MiniJavaNodeJumper();
 		walker.walk(listener2, tree);
+		
+		MiniJavaTypeCheckerListener listener3 = new MiniJavaTypeCheckerListener();
+		walker.walk(listener3, tree);
 		
 		JFrame frame = new JFrame("Antlr AST");
 		JPanel panel = new JPanel();

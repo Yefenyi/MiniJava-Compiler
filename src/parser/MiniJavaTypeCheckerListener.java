@@ -1,34 +1,85 @@
 package parser;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import antlr4.MiniJavaBaseListener;
-import antlr4.MiniJavaParser.AOEContext;
-import antlr4.MiniJavaParser.ASEContext;
-import antlr4.MiniJavaParser.CEContext;
-import antlr4.MiniJavaParser.DEContext;
-import antlr4.MiniJavaParser.EQEContext;
-import antlr4.MiniJavaParser.MDEContext;
-import antlr4.MiniJavaParser.NEContext;
-import antlr4.MiniJavaParser.StmtListContext;
+import antlr4.MiniJavaParser;
+import antlr4.MiniJavaParser.ClassDeclContext;
+import antlr4.MiniJavaParser.ClassVarDeclContext;
+import antlr4.MiniJavaParser.FormalContext;
+import antlr4.MiniJavaParser.MethodDeclContext;
 
 public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
-	
-	private List<String> output;
+	// TODO go back to check method argument list types for valid types
+	private int errorCount;
+	private Map<String,ParsedClass> classMap;
+	private String activeClass;
 	
 	public MiniJavaTypeCheckerListener() {
-		this.output = new ArrayList<String>();
+		this.classMap = new HashMap<String,ParsedClass>();
+		this.errorCount = 0;
 	}
 	
+	public int getErrorCount() {
+		return this.errorCount;
+	}
 	
+	private void addError(String errorDescription) {
+		System.err.println(errorDescription);
+		++this.errorCount;
+	}
 	
-	public List<String> getGeneratedOutput() {
-		return this.output;
+	@Override
+	public void enterProgram(@NotNull MiniJavaParser.ProgramContext ctx) {
+		String className = ctx.children.get(0).getChild(1).getText();
+		classMap.put(className, new ParsedMainClass(className));
+		for(int i = 1 ; i < ctx.children.size() - 1 ; ++i) {
+			ClassDeclContext classDec = (ClassDeclContext) ctx.children.get(i);
+			ParsedClass parsedClass = new ParsedClass(className);
+			for(ParseTree pt : classDec.children) {
+				if(pt instanceof MethodDeclContext) {
+					MethodDeclContext method = (MethodDeclContext) pt;
+					String returnType = pt.getChild(1).getChild(0).getText();
+					String name = pt.getChild(2).getText();
+					List<ParsedIdentifier> identList = new ArrayList<ParsedIdentifier>();
+					for(ParseTree ptsub : method.children) {
+						if(ptsub instanceof FormalContext) { // TODO: Could check for duplicate name here
+							String identType = ptsub.getChild(0).getChild(0).getText();
+							String identName = ptsub.getChild(1).getText();
+							identList.add(new ParsedIdentifier(identName, identType));
+						}
+					}
+					ParsedMethod pMethod = new ParsedMethod(name, returnType, identList, method);
+					if(parsedClass.hasMethod(name)) {
+						this.addError("Method has already been defined: " + name);
+					} else {
+						parsedClass.addMethod(pMethod);
+					}
+				} else if(pt instanceof ClassVarDeclContext) {
+					ClassVarDeclContext var = (ClassVarDeclContext) pt;
+					String type = var.getChild(0).getChild(0).getText();
+					String name = var.getChild(1).getText();
+					ParsedIdentifier pIdent = new ParsedIdentifier(name, type);
+					if(parsedClass.hasField(name)) {
+						this.addError("Field has already been defined: " + name);
+					} else {
+						parsedClass.addField(pIdent);
+					}
+				}
+			}
+			className = ctx.children.get(i).getChild(1).getText();
+			if(classMap.containsKey(className)) {
+				this.addError("Class has already been declared: " + className);
+			} else {
+				classMap.put(className, parsedClass);
+			}
+		}
 	}
 
 }
