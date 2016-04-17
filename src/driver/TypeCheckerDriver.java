@@ -18,7 +18,7 @@ import org.antlr.v4.runtime.tree.gui.TreeViewer;
 
 import antlr4.MiniJavaLexer;
 import antlr4.MiniJavaParser;
-import parser.MiniJavaListener;
+import parser.MiniJavaNodePrunerListener;
 public class TypeCheckerDriver {
 
 
@@ -56,7 +56,7 @@ public class TypeCheckerDriver {
 		System.out.println("Error count: " + parser.getNumberOfSyntaxErrors());
 		
 		ParseTreeWalker walker = new ParseTreeWalker();
-		MiniJavaListener listener = new MiniJavaListener();
+		MiniJavaNodePrunerListener listener = new MiniJavaNodePrunerListener();
 		walker.walk(listener, tree);
 		
 		JFrame frame = new JFrame("Antlr AST");
