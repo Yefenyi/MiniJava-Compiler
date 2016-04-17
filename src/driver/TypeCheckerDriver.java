@@ -24,8 +24,8 @@ public class TypeCheckerDriver {
 
 
 	public static void main(String[] args) {
-		String fileName = "testcase00_04";
-		File fileIn = new File("input_output/ParserFullTests/" + fileName + ".java");
+		String fileName = "testcase00_10";
+		File fileIn = new File("input_output/TypeCheckerFullTests/" + fileName + ".java");
 		BufferedReader br;
 		String inString = "";
 		try {
