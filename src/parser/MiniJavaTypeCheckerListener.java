@@ -20,10 +20,12 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 	private int errorCount;
 	private Map<String,ParsedClass> classMap;
 	private String activeClass;
+	private EnvironmentTracker env;
 	
 	public MiniJavaTypeCheckerListener() {
 		this.classMap = new HashMap<String,ParsedClass>();
 		this.errorCount = 0;
+		this.env = new EnvironmentTracker();
 	}
 	
 	public int getErrorCount() {
@@ -93,4 +95,35 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 		}
 	}
 
+	@Override 
+	public void enterClassDecl(@NotNull MiniJavaParser.ClassDeclContext ctx) {
+		activeClass = ctx.children.get(1).getText();
+		ParsedClass pClass = classMap.get(activeClass);
+		env.addLevel(pClass.getNameToField());
+		while(pClass.getExtendsClass() != null) {
+			pClass = classMap.get(pClass.getExtendsClass());
+			env.addLevel(pClass.getNameToField());
+		}
+	}
+	
+	@Override
+	public void exitClassDecl(@NotNull MiniJavaParser.ClassDeclContext ctx) {
+		activeClass = null;
+		ParsedClass pClass = classMap.get(activeClass);
+		env.removeLevel();
+		while(pClass.getExtendsClass() != null) {
+			pClass = classMap.get(pClass.getExtendsClass());
+			env.removeLevel();
+		}
+	}
+	
+	@Override
+	public void enterStmtList(@NotNull MiniJavaParser.StmtListContext ctx) {
+		env.addLevel(new HashMap<String,ParsedIdentifier>());
+	}
+	
+	@Override
+	public void exitStmtList(@NotNull MiniJavaParser.StmtListContext ctx) {
+		env.removeLevel();
+	}
 }

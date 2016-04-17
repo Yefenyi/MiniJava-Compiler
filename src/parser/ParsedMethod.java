@@ -35,6 +35,9 @@ public class ParsedMethod {
 	}
 	
 	public boolean validOverride(ParsedMethod toCheck) {
+		if(toCheck == null) {
+			return true;
+		}
 		boolean listsEqual = toCheck.identifierList.size() == this.identifierList.size();
 		if(!listsEqual) {
 			return false;
