@@ -35,6 +35,15 @@ public class MiniJavaListener extends MiniJavaBaseListener {
 		}
 	}
 	
+	@Override
+	public void enterMDE(@NotNull MiniJavaParser.MDEContext ctx) {
+		if(ctx.children.size() == 2) {
+			if(ctx.children.get(1).getChildCount() == 0) {
+				ctx.children.remove(1);
+			}
+		}
+	}
+	
 	public List<String> getGeneratedOutput() {
 		return this.output;
 	}
