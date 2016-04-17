@@ -5,10 +5,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import antlr4.MiniJavaBaseListener;
+import antlr4.MiniJavaLexer;
 import antlr4.MiniJavaParser;
 import antlr4.MiniJavaParser.ClassDeclContext;
 import antlr4.MiniJavaParser.ClassVarDeclContext;
@@ -17,7 +19,6 @@ import antlr4.MiniJavaParser.MainClassDeclContext;
 import antlr4.MiniJavaParser.MethodDeclContext;
 
 public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
-	// TODO go back to check method argument list types for valid types
 	private int errorCount;
 	private Map<String,ParsedClass> classMap;
 	private String activeClass;
@@ -154,7 +155,14 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 	
 	@Override
 	public void exitMethodDecl(@NotNull MiniJavaParser.MethodDeclContext ctx) {
-		// TODO: Return type check!
+		String methodName = ctx.getChild(2).getText();
+		ParsedClass pClass = classMap.get(activeClass);
+		ParsedMethod parsedMethod = pClass.getNameToMethod().get(methodName);
+		String expectedReturnType = parsedMethod.getReturnType();
+		String actualReturnType = this.getReturnType(ctx.getChild(ctx.getChildCount() - 3));
+		if(!expectedReturnType.equals(actualReturnType)) {
+			this.addError("Return type " + actualReturnType + " does not match expected return type " + expectedReturnType);
+		}
 		env.removeLevel();
 	}
 	
@@ -166,5 +174,19 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 	@Override
 	public void exitStmtList(@NotNull MiniJavaParser.StmtListContext ctx) {
 		env.removeLevel();
+	}
+	
+	private String getReturnType(ParseTree pt) {
+		if(pt.getChildCount() == 0) {
+			if(pt.getPayload() instanceof Token) {
+				Token t = (Token)pt.getPayload();
+				if(t.getType() == MiniJavaLexer.INTEGER) {
+					return "int";
+				} else if(t.getType() == MiniJavaLexer.FALSE || t.getType() == MiniJavaLexer.TRUE) {
+					return "boolean";
+				}
+			}
+		}
+		return null;
 	}
 }
