@@ -18,4 +18,14 @@ public class ParsedIdentifier {
 		return type;
 	}
 	
+	@Override
+	public boolean equals(Object o) {
+		if(!(o instanceof ParsedIdentifier)) {
+			return false;
+		}
+		
+		ParsedIdentifier ident = (ParsedIdentifier) o;
+		return ident.getName().equals(this.getName()) && ident.getType().equals(this.getType());
+	}
+	
 }
