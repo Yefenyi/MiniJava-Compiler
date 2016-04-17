@@ -13,6 +13,7 @@ import antlr4.MiniJavaParser;
 import antlr4.MiniJavaParser.ClassDeclContext;
 import antlr4.MiniJavaParser.ClassVarDeclContext;
 import antlr4.MiniJavaParser.FormalContext;
+import antlr4.MiniJavaParser.MainClassDeclContext;
 import antlr4.MiniJavaParser.MethodDeclContext;
 
 public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
@@ -21,6 +22,7 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 	private Map<String,ParsedClass> classMap;
 	private String activeClass;
 	private EnvironmentTracker env;
+	private ParsedMainClass mainClass;
 	
 	public MiniJavaTypeCheckerListener() {
 		this.classMap = new HashMap<String,ParsedClass>();
@@ -39,9 +41,9 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 	
 	@Override
 	public void enterProgram(@NotNull MiniJavaParser.ProgramContext ctx) {
-		//Program should allways have a main class
+		//Program should always have a main class
 		String className = ctx.children.get(0).getChild(1).getText();
-		classMap.put(className, new ParsedMainClass(className));
+		mainClass = new ParsedMainClass(className, (MainClassDeclContext) ctx.children.get(0));
 		//Now look at all classes
 		for(int i = 1 ; i < ctx.children.size() - 1 ; ++i) {
 			className = ctx.children.get(i).getChild(1).getText();
@@ -63,7 +65,20 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 						if(ptsub instanceof FormalContext) { // TODO: Could check for duplicate name here
 							String identType = ptsub.getChild(0).getChild(0).getText();
 							String identName = ptsub.getChild(1).getText();
-							identList.add(new ParsedIdentifier(identName, identType));
+							boolean dupFound = false;
+							for(ParsedIdentifier pIdent : identList) {
+								if(identName.equals(pIdent.getName()))
+									dupFound = true;
+							}
+							if(dupFound) {
+								this.addError("Duplicate argument identifier in method: " + name);
+							} else {
+								if(parsedClass.hasField(identName)) {
+									this.addError("Variable names cannot be shadowed. Argument " + identName + " is already defined as a field");
+								} else {
+									identList.add(new ParsedIdentifier(identName, identType));
+								}
+							}
 						}
 					}
 					ParsedMethod pMethod = new ParsedMethod(name, returnType, identList, method);
@@ -108,13 +123,39 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 	
 	@Override
 	public void exitClassDecl(@NotNull MiniJavaParser.ClassDeclContext ctx) {
-		activeClass = null;
 		ParsedClass pClass = classMap.get(activeClass);
 		env.removeLevel();
 		while(pClass.getExtendsClass() != null) {
 			pClass = classMap.get(pClass.getExtendsClass());
 			env.removeLevel();
 		}
+		activeClass = null;
+	}
+	
+	@Override
+	public void enterType(antlr4.MiniJavaParser.TypeContext ctx) {
+		ParseTree type = ctx.getChild(0);
+		if(!(type.getText().equals("int") || type.getText().equals("boolean") || classMap.containsKey(type.getText()))) {
+			this.addError("Type " + type.getText() + " has not been defined");
+		}
+	}
+	
+	@Override
+	public void enterMethodDecl(@NotNull MiniJavaParser.MethodDeclContext ctx) {
+		ParsedClass pClass = classMap.get(activeClass);
+		String methodName = ctx.getChild(2).getText();
+		ParsedMethod pMethod = pClass.getNameToMethod().get(methodName);
+		Map<String,ParsedIdentifier> newLevel = new HashMap<String,ParsedIdentifier>();
+		for(ParsedIdentifier pIdent : pMethod.getIdentifierList()) {
+			newLevel.put(pIdent.getName(), pIdent);
+		}
+		env.addLevel(newLevel);
+	}
+	
+	@Override
+	public void exitMethodDecl(@NotNull MiniJavaParser.MethodDeclContext ctx) {
+		// TODO: Return type check!
+		env.removeLevel();
 	}
 	
 	@Override

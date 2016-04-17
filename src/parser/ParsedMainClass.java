@@ -1,10 +1,14 @@
 package parser;
 
-public class ParsedMainClass extends ParsedClass {
+import antlr4.MiniJavaParser.MainClassDeclContext;
 
-	public ParsedMainClass(String name) {
+public class ParsedMainClass extends ParsedClass {
+	
+	MainClassDeclContext tree;
+
+	public ParsedMainClass(String name, MainClassDeclContext tree) {
 		super(name);
-		// TODO Auto-generated constructor stub
+		this.tree = tree;
 	}
 
 }
