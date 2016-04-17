@@ -40,7 +40,7 @@ public class ParsedMethod {
 			return false;
 		}
 		for(int i = 0 ; i < identifierList.size() ; ++i) {
-			listsEqual = listsEqual && this.identifierList.get(i).equals(toCheck.identifierList.get(i));
+			listsEqual = listsEqual && this.identifierList.get(i).getType().equals(toCheck.identifierList.get(i).getType());
 		}
 		return listsEqual && this.name.equals(toCheck.name) && this.returnType.equals(toCheck.returnType);
 	}
