@@ -6,6 +6,8 @@ import java.util.Map;
 public class ParsedClass {
 	String name;
 	String extendsClass;
+
+
 	Map<String,ParsedMethod> nameToMethod;
 	Map<String,ParsedIdentifier> nameToField;
 	
@@ -22,6 +24,28 @@ public class ParsedClass {
 		this.nameToMethod = new HashMap<String,ParsedMethod>();
 	}
 	
+	public String getExtendsClass() {
+		return extendsClass;
+	}
+
+	public Map<String, ParsedMethod> getNameToMethod() {
+		return nameToMethod;
+	}
+
+	public Map<String, ParsedIdentifier> getNameToField() {
+		return nameToField;
+	}
+	public void setExtendsClass(String extendsClass) {
+		this.extendsClass = extendsClass;
+	}
+
+	public void setNameToMethod(Map<String, ParsedMethod> nameToMethod) {
+		this.nameToMethod = nameToMethod;
+	}
+	public void setNameToField(Map<String, ParsedIdentifier> nameToField) {
+		this.nameToField = nameToField;
+	}
+
 	public String getName() {
 		return this.name;
 	}

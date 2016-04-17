@@ -40,8 +40,16 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 		String className = ctx.children.get(0).getChild(1).getText();
 		classMap.put(className, new ParsedMainClass(className));
 		for(int i = 1 ; i < ctx.children.size() - 1 ; ++i) {
+			className = ctx.children.get(i).getChild(1).getText();
 			ClassDeclContext classDec = (ClassDeclContext) ctx.children.get(i);
 			ParsedClass parsedClass = new ParsedClass(className);
+			if(classDec.getChild(2).getText().toLowerCase().equals("extends")){
+				String parentName = classDec.getChild(3).getText();
+				ParsedClass parrentClass = classMap.get(parentName);
+				parsedClass.setExtendsClass(parentName);
+				//parsedClass.setNameToField();
+				//parsedClass.setNameToMethod();
+			}
 			for(ParseTree pt : classDec.children) {
 				if(pt instanceof MethodDeclContext) {
 					MethodDeclContext method = (MethodDeclContext) pt;

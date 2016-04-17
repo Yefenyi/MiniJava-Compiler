@@ -33,7 +33,7 @@ hPE: NEW ID LPREN RPREN
 program: mainClassDecl classDecl* EOF; 
 mainClassDecl: CLASS ID LCURL PUBLIC STATIC VOID MAIN LPREN STRING 
 	LBRACKET RBRACKET ID RPREN LCURL stmtList RCURL RCURL;
-classDecl: CLASS ID (/*nothing*/|(LBRACKET EXTENDS ID RBRACKET)) LCURL
+classDecl: CLASS ID (/*nothing*/|(EXTENDS ID)) LCURL
 classVarDecl* methodDecl* RCURL; 
 classVarDecl: type ID SEMI;
 methodDecl: PUBLIC type ID LPREN (/*nothing*/|formal (COMMA formal)*) RPREN
