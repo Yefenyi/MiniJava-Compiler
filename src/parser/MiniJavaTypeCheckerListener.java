@@ -37,8 +37,10 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 	
 	@Override
 	public void enterProgram(@NotNull MiniJavaParser.ProgramContext ctx) {
+		//Program should allways have a main class
 		String className = ctx.children.get(0).getChild(1).getText();
 		classMap.put(className, new ParsedMainClass(className));
+		//Now look at all classes
 		for(int i = 1 ; i < ctx.children.size() - 1 ; ++i) {
 			className = ctx.children.get(i).getChild(1).getText();
 			ClassDeclContext classDec = (ClassDeclContext) ctx.children.get(i);
