@@ -173,6 +173,108 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 	}
 	
 	@Override
+	public void enterEQE(@NotNull MiniJavaParser.EQEContext ctx) {
+		if(ctx.children.size() == 3) {
+			if(!expressionType(ctx.getChild(0)).equals(expressionType(ctx.getChild(2)))) {
+				this.addError("Types in comparison '" + ctx.getText() + "' are mismatched");
+			}
+		}
+	}
+	
+	@Override
+	public void enterCE(@NotNull MiniJavaParser.CEContext ctx) {
+		if(!expressionType(ctx.getChild(0)).equals("int")) {
+			this.addError("Expected integer value for comparison: " + ctx.getText());
+		}
+	}
+	
+	@Override
+	public void enterCEP(@NotNull MiniJavaParser.CEPContext ctx) {
+		if(ctx.getChildCount() == 3) {
+			if(!expressionType(ctx.getChild(1)).equals("int")) {
+				this.addError("Expected integer value for comparison: " + ctx.getParent().getText());
+			}
+		}
+	}
+	
+	@Override
+	public void enterAOE(@NotNull MiniJavaParser.AOEContext ctx) {
+		if(!expressionType(ctx.getChild(0)).equals("boolean")) {
+			this.addError("Expected boolean value: " + ctx.getText());
+		}
+	}
+	
+	@Override
+	public void enterAOEP(@NotNull MiniJavaParser.AOEPContext ctx) {
+		if(ctx.getChildCount() == 3) {
+			if(!expressionType(ctx.getChild(1)).equals("boolean")) {
+				this.addError("Expected boolean value: " + ctx.getParent().getText());
+			}
+		}
+	}
+	
+	@Override
+	public void enterMDE(@NotNull MiniJavaParser.MDEContext ctx) {
+		if(!expressionType(ctx.getChild(0)).equals("int")) {
+			this.addError("Expected integer value for expression: " + ctx.getText());
+		}
+	}
+	
+	@Override
+	public void enterMDEP(@NotNull MiniJavaParser.MDEPContext ctx) {
+		if(ctx.getChildCount() == 3) {
+			if(!expressionType(ctx.getChild(1)).equals("int")) {
+				this.addError("Expected integer value for expression: " + ctx.getParent().getText());
+			}
+		}
+	}
+	
+	@Override
+	public void enterASE(@NotNull MiniJavaParser.ASEContext ctx) {
+		if(!expressionType(ctx.getChild(0)).equals("int")) {
+			this.addError("Expected integer value for expression: " + ctx.getText());
+		}
+	}
+	
+	@Override
+	public void enterASEP(@NotNull MiniJavaParser.ASEPContext ctx) {
+		if(ctx.getChildCount() == 3) {
+			if(!expressionType(ctx.getChild(1)).equals("int")) {
+				this.addError("Expected integer value for expression: " + ctx.getParent().getText());
+			}
+		}
+	}
+	
+	@Override
+	public void enterNE(@NotNull MiniJavaParser.NEContext ctx) {
+		if(ctx.getChildCount() == 2) {
+			if(ctx.getChild(0).getPayload().equals(MiniJavaLexer.BANG)) {
+				if(!expressionType(ctx.getChild(1)).equals("boolean")) {
+					this.addError("Expected boolean value: " + ctx.getText());
+				}
+			}
+			if(ctx.getChild(0).getPayload().equals(MiniJavaLexer.SUB)) {
+				if(!expressionType(ctx.getChild(1)).equals("int")) {
+					this.addError("Expected integer value: " + ctx.getText());
+				}
+			}
+		}
+	}
+
+	//TODO: Need many more statements
+	@Override
+	public void enterStmt(@NotNull MiniJavaParser.StmtContext ctx) {
+		if(ctx.getChildCount() == 4) {
+			String expectedType = env.getIdentifierType(ctx.getChild(0).getText());
+			String actualType = expressionType(ctx.getChild(2));
+			List<String> possibleTypes = getPossibleTypes(actualType);
+			if(!possibleTypes.contains(expectedType)) {
+				this.addError("Assignment type mismatch: Expected type " + possibleTypes.toString() + " does not match type " + actualType);
+			}
+		}
+	}
+	
+	@Override
 	public void enterStmtList(@NotNull MiniJavaParser.StmtListContext ctx) {
 		env.addLevel(new HashMap<String,ParsedIdentifier>());
 	}
