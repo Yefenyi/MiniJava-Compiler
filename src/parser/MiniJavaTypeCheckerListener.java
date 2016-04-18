@@ -14,9 +14,12 @@ import antlr4.MiniJavaLexer;
 import antlr4.MiniJavaParser;
 import antlr4.MiniJavaParser.ClassDeclContext;
 import antlr4.MiniJavaParser.ClassVarDeclContext;
+import antlr4.MiniJavaParser.DEContext;
+import antlr4.MiniJavaParser.EQEContext;
 import antlr4.MiniJavaParser.FormalContext;
 import antlr4.MiniJavaParser.MainClassDeclContext;
 import antlr4.MiniJavaParser.MethodDeclContext;
+import antlr4.MiniJavaParser.NEContext;
 
 public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 	private int errorCount;
@@ -159,9 +162,10 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 		ParsedClass pClass = classMap.get(activeClass);
 		ParsedMethod parsedMethod = pClass.getNameToMethod().get(methodName);
 		String expectedReturnType = parsedMethod.getReturnType();
-		String actualReturnType = this.getReturnType(ctx.getChild(ctx.getChildCount() - 3));
-		if(!expectedReturnType.equals(actualReturnType)) {
-			this.addError("Return type " + actualReturnType + " does not match expected return type " + expectedReturnType);
+		List<String> actualReturnType = this.getReturnType(ctx.getChild(ctx.getChildCount() - 3));
+		
+		if(!actualReturnType.contains(expectedReturnType)) {
+			this.addError("Return type " + actualReturnType+ " does not match expected return type " + expectedReturnType.toString());
 		}
 		env.removeLevel();
 	}
@@ -176,15 +180,73 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 		env.removeLevel();
 	}
 	
-	private String getReturnType(ParseTree pt) {
+	private List<String> getReturnType(ParseTree pt) {
+		String singleType = null;
 		if(pt.getChildCount() == 0) {
 			if(pt.getPayload() instanceof Token) {
 				Token t = (Token)pt.getPayload();
 				if(t.getType() == MiniJavaLexer.INTEGER) {
-					return "int";
+					singleType = "int";
 				} else if(t.getType() == MiniJavaLexer.FALSE || t.getType() == MiniJavaLexer.TRUE) {
-					return "boolean";
+					singleType = "boolean";
+				} else if(t.getType() == MiniJavaLexer.ID){
+					singleType = this.env.getIdentifierType(t.getText()); //TODO matt make sure this is right way to get a var type
 				}
+			}
+		}else{
+			singleType = this.expressionType(pt);
+		}
+		return this.getPossibleTypes(singleType);
+	}
+	
+	private List<String> getPossibleTypes(String singleType) {
+		List<String> output = new ArrayList<String>();
+		output.add(singleType);
+		ParsedClass child =  this.classMap.get(singleType);
+		ParsedClass parent;
+		if(child!=null){
+			while(child.getExtendsClass()!=null){
+				parent = this.classMap.get(child.getExtendsClass());
+				output.add(parent.getName());
+				child = parent;
+			}	
+		}
+		return output;
+	}
+
+	private String expressionType(ParseTree pt){
+		//TODO replace with the possible expressions that can be type
+		//MDE, ASE, AOE, Ce, EQE, token,  left to add
+		if(pt instanceof DEContext){
+			String HPE = ((DEContext) pt).children.get(0).getText(); //Class variable or this
+			ParseTree DEP = pt.getChild(1); //method being called
+			ParseTree nextCall =  DEP.getChild(DEP.getChildCount()-1);
+			ParsedClass pc;
+			if(HPE.equals("this")){
+				pc = this.classMap.get(this.activeClass);
+			}else{
+				pc = this.classMap.get(this.env.getIdentifierType(HPE));
+			}
+			String returnType = pc.getNameToMethod().get(DEP.getChild(1).getText()).getReturnType();
+			while(nextCall.getChildCount()!=0){
+				returnType = pc.getNameToMethod().get(DEP.getChild(1).getText()).getReturnType();
+				pc = this.classMap.get(returnType);
+				DEP = nextCall;
+				nextCall = nextCall.getChild(nextCall.getChildCount()-1);
+			}
+			return returnType;
+		}else if(pt instanceof NEContext){
+			String type = this.expressionType(pt.getChild(1));
+			String expectedType = pt.getChild(0).getText();
+			if(pt.getChild(0).getPayload().equals(MiniJavaLexer.BANG)){
+				expectedType = "boolean";
+			}else{
+				expectedType = "int";
+			}
+			if(expectedType.equals(type)){
+				return type;
+			}else{
+				this.addError("Not expression expected type " + expectedType+ ": Recived type "+type);
 			}
 		}
 		return null;
