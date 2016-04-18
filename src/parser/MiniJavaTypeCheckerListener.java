@@ -17,6 +17,8 @@ import antlr4.MiniJavaParser.ClassVarDeclContext;
 import antlr4.MiniJavaParser.DEContext;
 import antlr4.MiniJavaParser.EQEContext;
 import antlr4.MiniJavaParser.FormalContext;
+import antlr4.MiniJavaParser.HPEContext;
+import antlr4.MiniJavaParser.MDEContext;
 import antlr4.MiniJavaParser.MainClassDeclContext;
 import antlr4.MiniJavaParser.MethodDeclContext;
 import antlr4.MiniJavaParser.NEContext;
@@ -215,8 +217,6 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 	}
 
 	private String expressionType(ParseTree pt){
-		//TODO replace with the possible expressions that can be type
-		//MDE, ASE, AOE, Ce, EQE, token,  left to add
 		if(pt instanceof DEContext){
 			String HPE = ((DEContext) pt).children.get(0).getText(); //Class variable or this
 			ParseTree DEP = pt.getChild(1); //method being called
@@ -235,18 +235,25 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 				nextCall = nextCall.getChild(nextCall.getChildCount()-1);
 			}
 			return returnType;
-		}else if(pt instanceof NEContext){
-			String type = this.expressionType(pt.getChild(1));
-			String expectedType = pt.getChild(0).getText();
-			if(pt.getChild(0).getPayload().equals(MiniJavaLexer.BANG)){
-				expectedType = "boolean";
-			}else{
-				expectedType = "int";
-			}
-			if(expectedType.equals(type)){
-				return type;
-			}else{
-				this.addError("Not expression expected type " + expectedType+ ": Recived type "+type);
+		}else if(pt instanceof HPEContext){
+			if(pt.getChildCount()==1){
+				if(pt.getChild(0).getPayload().equals(MiniJavaLexer.INT)){
+					return "int";
+				}else if(pt.getChild(0).getPayload().equals(MiniJavaLexer.FALSE)){
+					return "boolean";
+				}else if(pt.getChild(0).getPayload().equals(MiniJavaLexer.TRUE)){
+					return "boolean";
+				}else if(pt.getChild(0).getPayload().equals(MiniJavaLexer.NULL)){
+					return null;
+				}else if(pt.getChild(0).getPayload().equals(MiniJavaLexer.ID)){
+					return this.env.getIdentifierType(pt.getText()); //TODO might be wrong
+				}else if(pt.getChild(0).getPayload().equals(MiniJavaLexer.THIS)){
+					return this.activeClass;
+				}
+			}else if(pt.getChildCount()==4){
+				return pt.getChild(1).getText();
+			}else if(pt.getChildCount()==3){
+				return this.expressionType(pt.getChild(1));
 			}
 		}
 		return null;
