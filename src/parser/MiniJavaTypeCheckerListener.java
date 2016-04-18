@@ -12,6 +12,12 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import antlr4.MiniJavaBaseListener;
 import antlr4.MiniJavaLexer;
 import antlr4.MiniJavaParser;
+import antlr4.MiniJavaParser.AOEContext;
+import antlr4.MiniJavaParser.AOEPContext;
+import antlr4.MiniJavaParser.ASEContext;
+import antlr4.MiniJavaParser.ASEPContext;
+import antlr4.MiniJavaParser.CEContext;
+import antlr4.MiniJavaParser.CEPContext;
 import antlr4.MiniJavaParser.ClassDeclContext;
 import antlr4.MiniJavaParser.ClassVarDeclContext;
 import antlr4.MiniJavaParser.DEContext;
@@ -19,6 +25,7 @@ import antlr4.MiniJavaParser.EQEContext;
 import antlr4.MiniJavaParser.FormalContext;
 import antlr4.MiniJavaParser.HPEContext;
 import antlr4.MiniJavaParser.MDEContext;
+import antlr4.MiniJavaParser.MDEPContext;
 import antlr4.MiniJavaParser.MainClassDeclContext;
 import antlr4.MiniJavaParser.MethodDeclContext;
 import antlr4.MiniJavaParser.NEContext;
@@ -329,6 +336,9 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 			}else{
 				pc = this.classMap.get(this.env.getIdentifierType(HPE));
 			}
+			if(pc==null){
+				this.addError("Class "+HPE+"is not defiened");
+			}
 			String returnType = pc.getNameToMethod().get(DEP.getChild(1).getText()).getReturnType();
 			while(nextCall.getChildCount()!=0){
 				returnType = pc.getNameToMethod().get(DEP.getChild(1).getText()).getReturnType();
@@ -356,6 +366,30 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 				return pt.getChild(1).getText();
 			}else if(pt.getChildCount()==3){
 				return this.expressionType(pt.getChild(1));
+			}
+		}else if(pt instanceof EQEContext){
+			return "boolean";
+		}else if(pt instanceof CEContext){
+			return "boolean";
+		}else if(pt instanceof CEPContext){
+			return "boolean";
+		}else if(pt instanceof AOEContext){
+			return "boolean";
+		}else if(pt instanceof AOEPContext){
+			return "boolean";
+		}else if(pt instanceof ASEContext){
+			return "int";
+		}else if(pt instanceof ASEPContext){
+			return "int";
+		}else if(pt instanceof MDEContext){
+			return "int";
+		}else if(pt instanceof MDEPContext){
+			return "int";
+		}else if(pt instanceof NEContext){
+			if(pt.getChild(0).getPayload().equals(MiniJavaLexer.SUB)){
+				return "int";
+			}else{
+				return"boolean";
 			}
 		}
 		return null;
