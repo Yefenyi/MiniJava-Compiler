@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.misc.NotNull;
@@ -182,8 +183,8 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 		ParsedMethod parsedMethod = pClass.getNameToMethod().get(methodName);
 		String expectedReturnType = parsedMethod.getReturnType();
 		List<String> actualReturnType = this.getReturnType(ctx.getChild(ctx.getChildCount() - 3));
-		
 		if(!actualReturnType.contains(expectedReturnType)) {
+			System.out.println(ctx.getChild(ctx.getChildCount() - 3).getText());
 			this.addError("Return type " + actualReturnType+ " does not match expected return type " + expectedReturnType.toString());
 		}
 		env.removeLevel();
@@ -193,7 +194,11 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 	public void enterEQE(@NotNull MiniJavaParser.EQEContext ctx) {
 		if(ctx.children.size() == 3) {
 			if(!expressionType(ctx.getChild(0)).equals(expressionType(ctx.getChild(2)))) {
-				this.addError("Types in comparison '" + ctx.getText() + "' are mismatched");
+				if(expressionType(ctx.getChild(2)).equals("null")){
+					if(!this.classMap.keySet().contains(expressionType(ctx.getChild(0)))){
+						this.addError("Types in comparison '" + ctx.getText() + "' are mismatched");
+					}
+				}
 			}
 		}
 	}
@@ -284,7 +289,14 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 		if(ctx.getChildCount() == 4) {
 			String expectedType = env.getIdentifierType(ctx.getChild(0).getText());
 			String actualType = expressionType(ctx.getChild(2));
-			List<String> possibleTypes = getPossibleTypes(actualType);
+			List<String> possibleTypes = new ArrayList<String>();
+			if(actualType.equals("null")){
+				for (String key:this.classMap.keySet()){
+					possibleTypes.add(key);
+				}
+			}else{
+				possibleTypes= getPossibleTypes(actualType);
+			}
 			if(!possibleTypes.contains(expectedType)) {
 				this.addError("Assignment type mismatch: Expected type " + possibleTypes.toString() + " does not match type " + expectedType);
 			}
@@ -305,12 +317,16 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 	
 	@Override
 	public void enterStmtList(@NotNull MiniJavaParser.StmtListContext ctx) {
-		env.addLevel(new HashMap<String,ParsedIdentifier>());
+		if(!(ctx.getParent() instanceof MethodDeclContext)){
+			env.addLevel(new HashMap<String,ParsedIdentifier>());
+		}
 	}
 	
 	@Override
 	public void exitStmtList(@NotNull MiniJavaParser.StmtListContext ctx) {
-		env.removeLevel();
+		if(!(ctx.getParent() instanceof MethodDeclContext)){
+			env.removeLevel();
+		}
 	}
 	
 	private List<String> getReturnType(ParseTree pt) {
@@ -323,7 +339,7 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 				} else if(t.getType() == MiniJavaLexer.FALSE || t.getType() == MiniJavaLexer.TRUE) {
 					singleType = "boolean";
 				} else if(t.getType() == MiniJavaLexer.ID){
-					singleType = this.env.getIdentifierType(t.getText()); //TODO matt make sure this is right way to get a var type
+					singleType = this.env.getIdentifierType(t.getText());
 				}
 			}
 		}else{
@@ -363,8 +379,7 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 				return "null";
 			}
 			//TODO: Make sure arguments are of right type
-			ParsedMethod currentMethod = pc.getNameToMethod().get(DEP.getChild(1).getText());
-			System.out.println(DEP.getChild(1).getText()); // TODO: WE BROKE IT HERE
+			ParsedMethod currentMethod = this.getMethod(DEP.getChild(1).getText(),pc);
 			String returnType = currentMethod.getReturnType();
 			while(nextCall.getChildCount()!=0){
 				returnType = pc.getNameToMethod().get(DEP.getChild(1).getText()).getReturnType();
@@ -384,7 +399,7 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 				}else if(pt.getChild(0).getPayload().equals(MiniJavaLexer.NULL)){
 					return null;
 				}else if(pt.getChild(0).getPayload().equals(MiniJavaLexer.ID)){
-					return this.env.getIdentifierType(pt.getText()); //TODO might be wrong
+					return this.env.getIdentifierType(pt.getText());
 				}else if(pt.getChild(0).getPayload().equals(MiniJavaLexer.THIS)){
 					return this.activeClass;
 				}
@@ -441,5 +456,15 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 		//System.out.println(pt.getText());
 		System.out.println(pt.getText() + ", Token" + pt.getPayload().toString());
 		return "supernull";
+	}
+	
+	private ParsedMethod getMethod(String name, ParsedClass pc){
+		if(pc.hasMethod(name)){
+			return pc.getNameToMethod().get(name);
+		}else if(pc.extendsClass!=null){
+			return this.getMethod(name, this.classMap.get(pc.extendsClass));
+		}else{
+			return null;
+		}
 	}
 }
