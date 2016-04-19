@@ -146,6 +146,16 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 	}
 	
 	@Override
+	public void enterMainClassDecl(@NotNull MiniJavaParser.MainClassDeclContext ctx) {
+		env.addLevel(new HashMap<String,ParsedIdentifier>());
+	}
+	
+	@Override
+	public void exitMainClassDecl(@NotNull MiniJavaParser.MainClassDeclContext ctx) {
+		env.removeLevel();
+	}
+	
+	@Override
 	public void enterType(antlr4.MiniJavaParser.TypeContext ctx) {
 		ParseTree type = ctx.getChild(0);
 		if(!(type.getText().equals("int") || type.getText().equals("boolean") || classMap.containsKey(type.getText()))) {
@@ -279,7 +289,7 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 				this.addError("Assignment type mismatch: Expected type " + possibleTypes.toString() + " does not match type " + expectedType);
 			}
 		} else if(ctx.getChildCount() == 5) {
-			if(ctx.getChild(2).getPayload().equals(MiniJavaLexer.ASSIGN)) {
+			if(ctx.getChild(2).getText().equals("=")) {
 				String expectedType = ctx.getChild(0).getText();
 				String actualType = this.expressionType(ctx.getChild(3));
 				List<String> possibleTypes = getPossibleTypes(actualType);
@@ -352,7 +362,10 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 				this.addError("Variable "+HPE+" is not defined");
 				return "null";
 			}
-			String returnType = pc.getNameToMethod().get(DEP.getChild(1).getText()).getReturnType();
+			//TODO: Make sure arguments are of right type
+			ParsedMethod currentMethod = pc.getNameToMethod().get(DEP.getChild(1).getText());
+			System.out.println(DEP.getChild(1).getText()); // TODO: WE BROKE IT HERE
+			String returnType = currentMethod.getReturnType();
 			while(nextCall.getChildCount()!=0){
 				returnType = pc.getNameToMethod().get(DEP.getChild(1).getText()).getReturnType();
 				pc = this.classMap.get(returnType);
@@ -405,19 +418,28 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 				return"boolean";
 			}
 		} else {
-			if(pt.getPayload().equals(MiniJavaLexer.INTEGER)) {
-				return "int";
-			} else if(pt.getPayload().equals(MiniJavaLexer.ID)) {
-				String type = env.getIdentifierType(pt.getText());
-				if(type == null) {
-					this.addError("Variable " + pt.getText() + " has not been declared");
-				} else {
-					return type;
+			if(pt.getPayload() instanceof Token) {
+				Token temp = (Token)pt.getPayload();
+				if(temp.getType() == MiniJavaLexer.INTEGER) {
+					return "int";
+				} else if(temp.getType() == MiniJavaLexer.ID) {
+					String type = env.getIdentifierType(pt.getText());
+					if(type == null) {
+						this.addError("Variable " + pt.getText() + " has not been declared");
+					} else {
+						return type;
+					}
+				} else if(temp.getType() == MiniJavaLexer.TRUE || temp.getType() == MiniJavaLexer.FALSE) {
+					return "boolean";
+				} else if(temp.getType() == MiniJavaLexer.THIS) {
+					return this.activeClass;
+				} else if(temp.getType() == MiniJavaLexer.NULL) {
+					return "null";
 				}
 			}
 		}
 		//System.out.println(pt.getText());
 		System.out.println(pt.getText() + ", Token" + pt.getPayload().toString());
-		return "null";
+		return "supernull";
 	}
 }

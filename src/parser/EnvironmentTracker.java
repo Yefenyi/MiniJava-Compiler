@@ -20,6 +20,7 @@ public class EnvironmentTracker {
 	}
 	
 	public void addIdentifier(ParsedIdentifier ident) {
+		System.out.println("Adding: " + ident.getName() + " of type " + ident.getType());
 		environs.peek().put(ident.getName(), ident);
 	}
 	
