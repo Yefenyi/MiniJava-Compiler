@@ -6,7 +6,7 @@ grammar MiniJava;
 eQE: cE(EQUALS|NOTEQUALS)cE 
 	| cE;
 cE: aOE cEP;
-cEP: (LT|GT|GEQ|LEQ) aOE cEP
+cEP: (LT|GT|GEQ|LEQ) aOE
 	|;
 aOE: aSE aOEP;
 aOEP: (AND|OR) aSE aOEP

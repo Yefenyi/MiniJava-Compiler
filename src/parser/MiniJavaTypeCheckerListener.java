@@ -197,7 +197,7 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 	
 	@Override
 	public void enterCEP(@NotNull MiniJavaParser.CEPContext ctx) {
-		if(ctx.getChildCount() == 3) {
+		if(ctx.getChildCount() == 2) {
 			if(!expressionType(ctx.getChild(1)).equals("int")) {
 				this.addError("Expected integer value for comparison: " + ctx.getParent().getText());
 			}
@@ -276,7 +276,19 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 			String actualType = expressionType(ctx.getChild(2));
 			List<String> possibleTypes = getPossibleTypes(actualType);
 			if(!possibleTypes.contains(expectedType)) {
-				this.addError("Assignment type mismatch: Expected type " + possibleTypes.toString() + " does not match type " + actualType);
+				this.addError("Assignment type mismatch: Expected type " + possibleTypes.toString() + " does not match type " + expectedType);
+			}
+		} else if(ctx.getChildCount() == 5) {
+			if(ctx.getChild(2).getPayload().equals(MiniJavaLexer.ASSIGN)) {
+				String expectedType = ctx.getChild(0).getText();
+				String actualType = this.expressionType(ctx.getChild(3));
+				List<String> possibleTypes = getPossibleTypes(actualType);
+				if(!possibleTypes.contains(expectedType)) {
+					this.addError("Assignment type mismatch: Expected type " + possibleTypes.toString() + " does not match type " + expectedType);
+				} else {
+					ParsedIdentifier pIdent = new ParsedIdentifier(ctx.getChild(1).getText(), expectedType);
+					env.addIdentifier(pIdent);
+				}
 			}
 		}
 	}
@@ -337,7 +349,8 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 				pc = this.classMap.get(this.env.getIdentifierType(HPE));
 			}
 			if(pc==null){
-				this.addError("Class "+HPE+"is not defiened");
+				this.addError("Variable "+HPE+" is not defined");
+				return "null";
 			}
 			String returnType = pc.getNameToMethod().get(DEP.getChild(1).getText()).getReturnType();
 			while(nextCall.getChildCount()!=0){
@@ -391,7 +404,20 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 			}else{
 				return"boolean";
 			}
+		} else {
+			if(pt.getPayload().equals(MiniJavaLexer.INTEGER)) {
+				return "int";
+			} else if(pt.getPayload().equals(MiniJavaLexer.ID)) {
+				String type = env.getIdentifierType(pt.getText());
+				if(type == null) {
+					this.addError("Variable " + pt.getText() + " has not been declared");
+				} else {
+					return type;
+				}
+			}
 		}
-		return null;
+		//System.out.println(pt.getText());
+		System.out.println(pt.getText() + ", Token" + pt.getPayload().toString());
+		return "null";
 	}
 }
