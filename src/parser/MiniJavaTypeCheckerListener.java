@@ -359,6 +359,8 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 					singleType = "boolean";
 				} else if(t.getType() == MiniJavaLexer.ID){
 					singleType = this.env.getIdentifierType(t.getText());
+				}else if(t.getType() == MiniJavaLexer.THIS){
+					singleType = this.activeClass;
 				}
 			}
 		}else{
