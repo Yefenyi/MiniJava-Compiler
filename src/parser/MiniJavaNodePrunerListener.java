@@ -54,7 +54,16 @@ public class MiniJavaNodePrunerListener extends MiniJavaBaseListener {
 	}
 	
 	@Override
-	public void enterAOE(@NotNull MiniJavaParser.AOEContext ctx) {
+	public void enterOE(@NotNull MiniJavaParser.OEContext ctx) {
+		if(ctx.children.size() == 2) {
+			if(ctx.children.get(1).getChildCount() == 0) {
+				ctx.children.remove(1);
+			}
+		}
+	}
+	
+	@Override
+	public void enterAE(@NotNull MiniJavaParser.AEContext ctx) {
 		if(ctx.children.size() == 2) {
 			if(ctx.children.get(1).getChildCount() == 0) {
 				ctx.children.remove(1);

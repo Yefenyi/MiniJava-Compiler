@@ -3,11 +3,14 @@ grammar MiniJava;
 //Grammar Rules
 //Precedence of operators
 //Lowest first
-cE: aOE cEP;
-cEP: (LT|GT|GEQ|LEQ) aOE
+oE: aE oEP;
+oEP: OR aE oEP
 	|;
-aOE: eQE aOEP;
-aOEP: (AND|OR) eQE aOEP
+aE: cE aEP;
+aEP: AND cE aEP
+	|;
+cE: eQE cEP;
+cEP: (LT|GT|GEQ|LEQ) eQE
 	|;
 eQE: aSE(EQUALS|NOTEQUALS)aSE 
 	| aSE;
@@ -19,7 +22,7 @@ mDEP: (DIVIDE|MULTPY) nE mDEP
 	|;
 nE: (SUB|BANG) nE | dE;
 dE: hPE dEP;
-dEP: DOT ID LPREN (/*nothing*/|cE (COMMA cE)*) RPREN dEP
+dEP: DOT ID LPREN (/*nothing*/|oE (COMMA oE)*) RPREN dEP
 	|;
 hPE: NEW ID LPREN RPREN
 | ID
@@ -28,7 +31,7 @@ hPE: NEW ID LPREN RPREN
 | NULL
 | TRUE
 | FALSE
-| LPREN cE RPREN;
+| LPREN oE RPREN;
 
 program: mainClassDecl classDecl* EOF; 
 mainClassDecl: CLASS ID LCURL PUBLIC STATIC VOID MAIN LPREN STRING 
@@ -37,15 +40,15 @@ classDecl: CLASS ID (/*nothing*/|(EXTENDS ID)) LCURL
 classVarDecl* methodDecl* RCURL; 
 classVarDecl: type ID SEMI;
 methodDecl: PUBLIC type ID LPREN (/*nothing*/|formal (COMMA formal)*) RPREN
-	LCURL stmtList RETURN cE SEMI RCURL;
+	LCURL stmtList RETURN oE SEMI RCURL;
 type: INT|BOOLEAN|ID;
 formal: type ID;
-stmt: type ID ASSIGN cE SEMI
+stmt: type ID ASSIGN oE SEMI
 	|LCURL stmtList RCURL
-	|IF LPREN cE RPREN stmt ELSE stmt
-	|WHILE LPREN cE RPREN stmt
-	|SYSTEMPRINT LPREN cE RPREN SEMI
-	|ID ASSIGN cE SEMI;
+	|IF LPREN oE RPREN stmt ELSE stmt
+	|WHILE LPREN oE RPREN stmt
+	|SYSTEMPRINT LPREN oE RPREN SEMI
+	|ID ASSIGN oE SEMI;
 stmtList: stmt stmtList | ;
 
 // LEXER RULES

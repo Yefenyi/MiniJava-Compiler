@@ -8,14 +8,14 @@ import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import antlr4.MiniJavaBaseListener;
-import antlr4.MiniJavaParser.AOEContext;
+import antlr4.MiniJavaParser.AEContext;
 import antlr4.MiniJavaParser.ASEContext;
 import antlr4.MiniJavaParser.CEContext;
 import antlr4.MiniJavaParser.DEContext;
 import antlr4.MiniJavaParser.EQEContext;
 import antlr4.MiniJavaParser.MDEContext;
 import antlr4.MiniJavaParser.NEContext;
-import antlr4.MiniJavaParser.StmtContext;
+import antlr4.MiniJavaParser.OEContext;
 import antlr4.MiniJavaParser.StmtListContext;
 
 public class MiniJavaNodeJumper extends MiniJavaBaseListener {
@@ -33,7 +33,7 @@ public class MiniJavaNodeJumper extends MiniJavaBaseListener {
 		}
 		for(int i = 0 ; i < ctx.children.size(); ++i) {
 			ParseTree node = ctx.children.get(i);
-			if(node instanceof StmtListContext || node instanceof EQEContext || node instanceof CEContext || node instanceof AOEContext || node instanceof ASEContext || node instanceof MDEContext || node instanceof NEContext || node instanceof DEContext) {
+			if(node instanceof StmtListContext || node instanceof EQEContext || node instanceof CEContext || node instanceof OEContext || node instanceof AEContext || node instanceof ASEContext || node instanceof MDEContext || node instanceof NEContext || node instanceof DEContext) {
 				ctx.children.remove(i);
 				while(node.getChildCount() == 1) {
 					node = node.getChild(0);
