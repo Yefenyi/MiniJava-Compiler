@@ -566,7 +566,7 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 		}else if(pt instanceof MDEPContext){
 			return "int";
 		}else if(pt instanceof NEContext){
-			if(pt.getChild(0).getPayload().equals(MiniJavaLexer.SUB)){
+			if(((Token)pt.getChild(0).getPayload()).getType()==MiniJavaLexer.SUB){
 				return "int";
 			}else{
 				return"boolean";
