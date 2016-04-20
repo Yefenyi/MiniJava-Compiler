@@ -50,7 +50,7 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 	}
 	
 	private void addError(String errorDescription) {
-		System.err.println(errorDescription);
+		//System.err.println(errorDescription);
 		++this.errorCount;
 		this.errors.add(errorDescription);
 	}
@@ -195,12 +195,8 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 	@Override
 	public void enterEQE(@NotNull MiniJavaParser.EQEContext ctx) {
 		if(ctx.children.size() == 3) {
-			if(!expressionType(ctx.getChild(0)).equals(expressionType(ctx.getChild(2)))) {
-				if(expressionType(ctx.getChild(2)).equals("null")){
-					if(!this.classMap.keySet().contains(expressionType(ctx.getChild(0)))){
-						this.addError("Types in comparison '" + ctx.getText() + "' are mismatched");
-					}
-				}
+			if(!this.isType(ctx.getChild(0),ctx.getChild(2))){
+				this.addError("Types in comparison '" + ctx.getText() + "' are mismatched");
 			}
 		}
 	}
@@ -263,7 +259,7 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 	@Override
 	public void enterASEP(@NotNull MiniJavaParser.ASEPContext ctx) {
 		if(ctx.getChildCount() == 3) {
-			if(!expressionType(ctx.getChild(1)).equals("int")) {
+			if(!this.isType("int",ctx.getChild(1))){
 				this.addError("Expected integer value for expression: " + ctx.getParent().getText());
 			}
 		}
@@ -288,7 +284,7 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 	//TODO: Need many more statements
 	@Override
 	public void enterStmt(@NotNull MiniJavaParser.StmtContext ctx) {
-		if(ctx.getChildCount() == 4) {
+		if(ctx.getChildCount() == 4) {//ID = EQE; 
 			String expectedType = env.getIdentifierType(ctx.getChild(0).getText());
 			String actualType = expressionType(ctx.getChild(2));
 			List<String> possibleTypes = new ArrayList<String>();
@@ -303,7 +299,7 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 				this.addError("Assignment type mismatch: Expected type " + possibleTypes.toString() + " does not match type " + expectedType);
 			}
 		} else if(ctx.getChildCount() == 5) {
-			if(ctx.getChild(2).getText().equals("=")) {
+			if(ctx.getChild(2).getText().equals("=")) {//TYPE ID = EQE ;
 				String expectedType = ctx.getChild(0).getText();
 				String actualType = this.expressionType(ctx.getChild(3));
 				List<String> possibleTypes = getPossibleTypes(actualType);
@@ -313,6 +309,18 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 					ParsedIdentifier pIdent = new ParsedIdentifier(ctx.getChild(1).getText(), expectedType);
 					env.addIdentifier(pIdent);
 				}
+			}else if(ctx.getChild(0).getText().equals("while")){//while ( eqe ) stmt
+				if(!this.expressionType(ctx.getChild(2)).equals("boolean")){
+					this.addError("Incorrect expression type expceted boolean: actual "+this.expressionType(ctx.getChild(2)));
+				}
+			}else if(ctx.getChild(0).getText().equals("System.out.println")){
+				if(!this.expressionType(ctx.getChild(2)).equals("int")){
+					this.addError("System.out.println can only print ints");
+				}
+			}
+		} else if(ctx.getChildCount() == 7) { //If ( eqe ) stmt else stmt
+			if(!this.expressionType(ctx.getChild(2)).equals("boolean")){
+				this.addError("Incorect type for if statement");
 			}
 		}
 	}
@@ -361,6 +369,11 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 				output.add(parent.getName());
 				child = parent;
 			}	
+		}
+		if(singleType.equals("null")){
+			for(String key:this.classMap.keySet()){
+				output.add(key);
+			}
 		}
 		return output;
 	}
@@ -467,6 +480,25 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 			return this.getMethod(name, this.classMap.get(pc.extendsClass));
 		}else{
 			return null;
+		}
+	}
+	
+	private boolean isType(String type, ParseTree pt){
+		String baseType = this.expressionType(pt);
+		if(baseType.equals("null")){
+			return this.classMap.containsKey(type);
+		} else {
+			return this.getPossibleTypes(baseType).contains(type);
+		}
+	}
+	private boolean isType(ParseTree oneTypeTree, ParseTree multipleTypeTree){
+		String compareType = this.expressionType(oneTypeTree);
+		List<String> types = this.getPossibleTypes(this.expressionType(multipleTypeTree));
+		if(compareType.equals("null")){
+			System.out.println("Fix this here");
+			return false;
+		}else{
+			return types.contains(compareType);
 		}
 	}
 }
