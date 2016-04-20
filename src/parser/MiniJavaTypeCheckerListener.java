@@ -61,6 +61,7 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 		//Program should always have a main class
 		String className = ctx.children.get(0).getChild(1).getText();
 		mainClass = new ParsedMainClass(className, (MainClassDeclContext) ctx.children.get(0));
+		this.classMap.put(className,mainClass);
 		//Now look at all classes
 		for(int i = 1 ; i < ctx.children.size() - 1 ; ++i) {
 			className = ctx.children.get(i).getChild(1).getText();
@@ -413,6 +414,9 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 
 	private List<String> getPossibleTypes(String singleType) {
 		List<String> output = new ArrayList<String>();
+		if(singleType==null){
+			return output;
+		}
 		output.add(singleType);
 		ParsedClass child =  this.classMap.get(singleType);
 		ParsedClass parent;
