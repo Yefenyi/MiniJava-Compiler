@@ -341,7 +341,7 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 				possibleTypes= getPossibleTypes(actualType);
 			}
 			if(!possibleTypes.contains(expectedType)) {
-				//this.addError("Assignment type mismatch: Expected type " + possibleTypes.toString() + " does not match type " + expectedType);
+				this.addError("Assignment type mismatch: Expected type " + possibleTypes.toString() + " does not match type " + expectedType);
 			}
 		} else if(ctx.getChildCount() == 5) {
 			if(ctx.getChild(2).getText().equals("=")) {//TYPE ID = EQE ;
@@ -473,8 +473,13 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 				if(c.equals(",")||c.equals("(")||c.equals(".")||c.equals(")")){
 					//Pass
 				}else if(j!=1 && j<DEP.getChildCount()-1){
-					if(!this.isType(currentMethod.identifierList.get(i).getType(),child)){
-						this.addError("Invalid argument to method "+currentMethod.getName());
+					if(i<currentMethod.identifierList.size()){
+						if(!this.isType(currentMethod.identifierList.get(i).getType(),child)){
+							this.addError("Invalid argument to method "+currentMethod.getName());
+						}
+					}else{
+						this.addError("Invalid number of arguments to method "+currentMethod.getName());
+						break;
 					}
 					i++;
 				}
@@ -489,8 +494,13 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 					if(c.equals(",")||c.equals("(")||c.equals(".")||c.equals(")")){
 						//Pass
 					}else if(j!=1 && j<DEP.getChildCount()-1){
-						if(!this.isType(currentMethod.identifierList.get(i).getType(),child)){
-							this.addError("Invalid argument to method "+currentMethod.getName());
+						if(i<currentMethod.identifierList.size()){
+							if(!this.isType(currentMethod.identifierList.get(i).getType(),child)){
+								this.addError("Invalid argument to method "+currentMethod.getName());
+							}
+						} else{
+							this.addError("Invalid number of arguments to method "+currentMethod.getName());
+							break;
 						}
 						i++;
 					}
