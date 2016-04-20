@@ -33,13 +33,13 @@ public class MiniJavaParser extends Parser {
 		"SYSTEMPRINT", "INTEGER", "OPERATOR", "DELIMITER", "ID", "WS", "COMMENT"
 	};
 	public static final int
-		RULE_eQE = 0, RULE_cE = 1, RULE_cEP = 2, RULE_aOE = 3, RULE_aOEP = 4, 
+		RULE_cE = 0, RULE_cEP = 1, RULE_aOE = 2, RULE_aOEP = 3, RULE_eQE = 4, 
 		RULE_aSE = 5, RULE_aSEP = 6, RULE_mDE = 7, RULE_mDEP = 8, RULE_nE = 9, 
 		RULE_dE = 10, RULE_dEP = 11, RULE_hPE = 12, RULE_program = 13, RULE_mainClassDecl = 14, 
 		RULE_classDecl = 15, RULE_classVarDecl = 16, RULE_methodDecl = 17, RULE_type = 18, 
 		RULE_formal = 19, RULE_stmt = 20, RULE_stmtList = 21;
 	public static final String[] ruleNames = {
-		"eQE", "cE", "cEP", "aOE", "aOEP", "aSE", "aSEP", "mDE", "mDEP", "nE", 
+		"cE", "cEP", "aOE", "aOEP", "eQE", "aSE", "aSEP", "mDE", "mDEP", "nE", 
 		"dE", "dEP", "hPE", "program", "mainClassDecl", "classDecl", "classVarDecl", 
 		"methodDecl", "type", "formal", "stmt", "stmtList"
 	};
@@ -63,68 +63,6 @@ public class MiniJavaParser extends Parser {
 		super(input);
 		_interp = new ParserATNSimulator(this,_ATN,_decisionToDFA,_sharedContextCache);
 	}
-	public static class EQEContext extends ParserRuleContext {
-		public TerminalNode EQUALS() { return getToken(MiniJavaParser.EQUALS, 0); }
-		public List<CEContext> cE() {
-			return getRuleContexts(CEContext.class);
-		}
-		public TerminalNode NOTEQUALS() { return getToken(MiniJavaParser.NOTEQUALS, 0); }
-		public CEContext cE(int i) {
-			return getRuleContext(CEContext.class,i);
-		}
-		public EQEContext(ParserRuleContext parent, int invokingState) {
-			super(parent, invokingState);
-		}
-		@Override public int getRuleIndex() { return RULE_eQE; }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof MiniJavaListener ) ((MiniJavaListener)listener).enterEQE(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof MiniJavaListener ) ((MiniJavaListener)listener).exitEQE(this);
-		}
-	}
-
-	public final EQEContext eQE() throws RecognitionException {
-		EQEContext _localctx = new EQEContext(_ctx, getState());
-		enterRule(_localctx, 0, RULE_eQE);
-		int _la;
-		try {
-			setState(49);
-			switch ( getInterpreter().adaptivePredict(_input,0,_ctx) ) {
-			case 1:
-				enterOuterAlt(_localctx, 1);
-				{
-				setState(44); cE();
-				setState(45);
-				_la = _input.LA(1);
-				if ( !(_la==EQUALS || _la==NOTEQUALS) ) {
-				_errHandler.recoverInline(this);
-				}
-				consume();
-				setState(46); cE();
-				}
-				break;
-			case 2:
-				enterOuterAlt(_localctx, 2);
-				{
-				setState(48); cE();
-				}
-				break;
-			}
-		}
-		catch (RecognitionException re) {
-			_localctx.exception = re;
-			_errHandler.reportError(this, re);
-			_errHandler.recover(this, re);
-		}
-		finally {
-			exitRule();
-		}
-		return _localctx;
-	}
-
 	public static class CEContext extends ParserRuleContext {
 		public CEPContext cEP() {
 			return getRuleContext(CEPContext.class,0);
@@ -148,12 +86,12 @@ public class MiniJavaParser extends Parser {
 
 	public final CEContext cE() throws RecognitionException {
 		CEContext _localctx = new CEContext(_ctx, getState());
-		enterRule(_localctx, 2, RULE_cE);
+		enterRule(_localctx, 0, RULE_cE);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(51); aOE();
-			setState(52); cEP();
+			setState(44); aOE();
+			setState(45); cEP();
 			}
 		}
 		catch (RecognitionException re) {
@@ -191,10 +129,10 @@ public class MiniJavaParser extends Parser {
 
 	public final CEPContext cEP() throws RecognitionException {
 		CEPContext _localctx = new CEPContext(_ctx, getState());
-		enterRule(_localctx, 4, RULE_cEP);
+		enterRule(_localctx, 2, RULE_cEP);
 		int _la;
 		try {
-			setState(57);
+			setState(50);
 			switch (_input.LA(1)) {
 			case LT:
 			case GT:
@@ -202,17 +140,15 @@ public class MiniJavaParser extends Parser {
 			case LEQ:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(54);
+				setState(47);
 				_la = _input.LA(1);
 				if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << LT) | (1L << GT) | (1L << GEQ) | (1L << LEQ))) != 0)) ) {
 				_errHandler.recoverInline(this);
 				}
 				consume();
-				setState(55); aOE();
+				setState(48); aOE();
 				}
 				break;
-			case EQUALS:
-			case NOTEQUALS:
 			case RPREN:
 			case COMMA:
 			case SEMI:
@@ -239,8 +175,8 @@ public class MiniJavaParser extends Parser {
 		public AOEPContext aOEP() {
 			return getRuleContext(AOEPContext.class,0);
 		}
-		public ASEContext aSE() {
-			return getRuleContext(ASEContext.class,0);
+		public EQEContext eQE() {
+			return getRuleContext(EQEContext.class,0);
 		}
 		public AOEContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -258,12 +194,12 @@ public class MiniJavaParser extends Parser {
 
 	public final AOEContext aOE() throws RecognitionException {
 		AOEContext _localctx = new AOEContext(_ctx, getState());
-		enterRule(_localctx, 6, RULE_aOE);
+		enterRule(_localctx, 4, RULE_aOE);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(59); aSE();
-			setState(60); aOEP();
+			setState(52); eQE();
+			setState(53); aOEP();
 			}
 		}
 		catch (RecognitionException re) {
@@ -281,10 +217,10 @@ public class MiniJavaParser extends Parser {
 		public AOEPContext aOEP() {
 			return getRuleContext(AOEPContext.class,0);
 		}
-		public ASEContext aSE() {
-			return getRuleContext(ASEContext.class,0);
-		}
 		public TerminalNode AND() { return getToken(MiniJavaParser.AND, 0); }
+		public EQEContext eQE() {
+			return getRuleContext(EQEContext.class,0);
+		}
 		public TerminalNode OR() { return getToken(MiniJavaParser.OR, 0); }
 		public AOEPContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -302,27 +238,25 @@ public class MiniJavaParser extends Parser {
 
 	public final AOEPContext aOEP() throws RecognitionException {
 		AOEPContext _localctx = new AOEPContext(_ctx, getState());
-		enterRule(_localctx, 8, RULE_aOEP);
+		enterRule(_localctx, 6, RULE_aOEP);
 		int _la;
 		try {
-			setState(67);
+			setState(60);
 			switch (_input.LA(1)) {
 			case AND:
 			case OR:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(62);
+				setState(55);
 				_la = _input.LA(1);
 				if ( !(_la==AND || _la==OR) ) {
 				_errHandler.recoverInline(this);
 				}
 				consume();
-				setState(63); aSE();
-				setState(64); aOEP();
+				setState(56); eQE();
+				setState(57); aOEP();
 				}
 				break;
-			case EQUALS:
-			case NOTEQUALS:
 			case LT:
 			case GT:
 			case GEQ:
@@ -336,6 +270,68 @@ public class MiniJavaParser extends Parser {
 				break;
 			default:
 				throw new NoViableAltException(this);
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			_errHandler.reportError(this, re);
+			_errHandler.recover(this, re);
+		}
+		finally {
+			exitRule();
+		}
+		return _localctx;
+	}
+
+	public static class EQEContext extends ParserRuleContext {
+		public TerminalNode EQUALS() { return getToken(MiniJavaParser.EQUALS, 0); }
+		public ASEContext aSE(int i) {
+			return getRuleContext(ASEContext.class,i);
+		}
+		public List<ASEContext> aSE() {
+			return getRuleContexts(ASEContext.class);
+		}
+		public TerminalNode NOTEQUALS() { return getToken(MiniJavaParser.NOTEQUALS, 0); }
+		public EQEContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_eQE; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof MiniJavaListener ) ((MiniJavaListener)listener).enterEQE(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof MiniJavaListener ) ((MiniJavaListener)listener).exitEQE(this);
+		}
+	}
+
+	public final EQEContext eQE() throws RecognitionException {
+		EQEContext _localctx = new EQEContext(_ctx, getState());
+		enterRule(_localctx, 8, RULE_eQE);
+		int _la;
+		try {
+			setState(67);
+			switch ( getInterpreter().adaptivePredict(_input,2,_ctx) ) {
+			case 1:
+				enterOuterAlt(_localctx, 1);
+				{
+				setState(62); aSE();
+				setState(63);
+				_la = _input.LA(1);
+				if ( !(_la==EQUALS || _la==NOTEQUALS) ) {
+				_errHandler.recoverInline(this);
+				}
+				consume();
+				setState(64); aSE();
+				}
+				break;
+			case 2:
+				enterOuterAlt(_localctx, 2);
+				{
+				setState(66); aSE();
+				}
+				break;
 			}
 		}
 		catch (RecognitionException re) {
@@ -700,19 +696,19 @@ public class MiniJavaParser extends Parser {
 		public TerminalNode LPREN() { return getToken(MiniJavaParser.LPREN, 0); }
 		public TerminalNode DOT() { return getToken(MiniJavaParser.DOT, 0); }
 		public TerminalNode ID() { return getToken(MiniJavaParser.ID, 0); }
+		public List<CEContext> cE() {
+			return getRuleContexts(CEContext.class);
+		}
 		public DEPContext dEP() {
 			return getRuleContext(DEPContext.class,0);
 		}
 		public List<TerminalNode> COMMA() { return getTokens(MiniJavaParser.COMMA); }
 		public TerminalNode RPREN() { return getToken(MiniJavaParser.RPREN, 0); }
-		public List<EQEContext> eQE() {
-			return getRuleContexts(EQEContext.class);
-		}
-		public EQEContext eQE(int i) {
-			return getRuleContext(EQEContext.class,i);
-		}
 		public TerminalNode COMMA(int i) {
 			return getToken(MiniJavaParser.COMMA, i);
+		}
+		public CEContext cE(int i) {
+			return getRuleContext(CEContext.class,i);
 		}
 		public DEPContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -758,7 +754,7 @@ public class MiniJavaParser extends Parser {
 				case INTEGER:
 				case ID:
 					{
-					setState(101); eQE();
+					setState(101); cE();
 					setState(106);
 					_errHandler.sync(this);
 					_la = _input.LA(1);
@@ -766,7 +762,7 @@ public class MiniJavaParser extends Parser {
 						{
 						{
 						setState(102); match(COMMA);
-						setState(103); eQE();
+						setState(103); cE();
 						}
 						}
 						setState(108);
@@ -819,14 +815,14 @@ public class MiniJavaParser extends Parser {
 	public static class HPEContext extends ParserRuleContext {
 		public TerminalNode LPREN() { return getToken(MiniJavaParser.LPREN, 0); }
 		public TerminalNode ID() { return getToken(MiniJavaParser.ID, 0); }
+		public CEContext cE() {
+			return getRuleContext(CEContext.class,0);
+		}
 		public TerminalNode INTEGER() { return getToken(MiniJavaParser.INTEGER, 0); }
 		public TerminalNode NULL() { return getToken(MiniJavaParser.NULL, 0); }
 		public TerminalNode FALSE() { return getToken(MiniJavaParser.FALSE, 0); }
 		public TerminalNode TRUE() { return getToken(MiniJavaParser.TRUE, 0); }
 		public TerminalNode RPREN() { return getToken(MiniJavaParser.RPREN, 0); }
-		public EQEContext eQE() {
-			return getRuleContext(EQEContext.class,0);
-		}
 		public TerminalNode THIS() { return getToken(MiniJavaParser.THIS, 0); }
 		public TerminalNode NEW() { return getToken(MiniJavaParser.NEW, 0); }
 		public HPEContext(ParserRuleContext parent, int invokingState) {
@@ -898,7 +894,7 @@ public class MiniJavaParser extends Parser {
 				enterOuterAlt(_localctx, 8);
 				{
 				setState(126); match(LPREN);
-				setState(127); eQE();
+				setState(127); cE();
 				setState(128); match(RPREN);
 				}
 				break;
@@ -1212,6 +1208,9 @@ public class MiniJavaParser extends Parser {
 		}
 		public TerminalNode ID() { return getToken(MiniJavaParser.ID, 0); }
 		public TerminalNode RETURN() { return getToken(MiniJavaParser.RETURN, 0); }
+		public CEContext cE() {
+			return getRuleContext(CEContext.class,0);
+		}
 		public TerminalNode SEMI() { return getToken(MiniJavaParser.SEMI, 0); }
 		public List<TerminalNode> COMMA() { return getTokens(MiniJavaParser.COMMA); }
 		public TerminalNode PUBLIC() { return getToken(MiniJavaParser.PUBLIC, 0); }
@@ -1221,9 +1220,6 @@ public class MiniJavaParser extends Parser {
 		public TerminalNode RPREN() { return getToken(MiniJavaParser.RPREN, 0); }
 		public StmtListContext stmtList() {
 			return getRuleContext(StmtListContext.class,0);
-		}
-		public EQEContext eQE() {
-			return getRuleContext(EQEContext.class,0);
 		}
 		public MethodDeclContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -1284,7 +1280,7 @@ public class MiniJavaParser extends Parser {
 			setState(201); match(LCURL);
 			setState(202); stmtList();
 			setState(203); match(RETURN);
-			setState(204); eQE();
+			setState(204); cE();
 			setState(205); match(SEMI);
 			setState(206); match(RCURL);
 			}
@@ -1396,13 +1392,13 @@ public class MiniJavaParser extends Parser {
 		}
 		public TerminalNode ID() { return getToken(MiniJavaParser.ID, 0); }
 		public TerminalNode ASSIGN() { return getToken(MiniJavaParser.ASSIGN, 0); }
+		public CEContext cE() {
+			return getRuleContext(CEContext.class,0);
+		}
 		public TerminalNode SEMI() { return getToken(MiniJavaParser.SEMI, 0); }
 		public TerminalNode SYSTEMPRINT() { return getToken(MiniJavaParser.SYSTEMPRINT, 0); }
 		public TypeContext type() {
 			return getRuleContext(TypeContext.class,0);
-		}
-		public EQEContext eQE() {
-			return getRuleContext(EQEContext.class,0);
 		}
 		public StmtListContext stmtList() {
 			return getRuleContext(StmtListContext.class,0);
@@ -1437,7 +1433,7 @@ public class MiniJavaParser extends Parser {
 				setState(213); type();
 				setState(214); match(ID);
 				setState(215); match(ASSIGN);
-				setState(216); eQE();
+				setState(216); cE();
 				setState(217); match(SEMI);
 				}
 				break;
@@ -1454,7 +1450,7 @@ public class MiniJavaParser extends Parser {
 				{
 				setState(223); match(IF);
 				setState(224); match(LPREN);
-				setState(225); eQE();
+				setState(225); cE();
 				setState(226); match(RPREN);
 				setState(227); stmt();
 				setState(228); match(ELSE);
@@ -1466,7 +1462,7 @@ public class MiniJavaParser extends Parser {
 				{
 				setState(231); match(WHILE);
 				setState(232); match(LPREN);
-				setState(233); eQE();
+				setState(233); cE();
 				setState(234); match(RPREN);
 				setState(235); stmt();
 				}
@@ -1476,7 +1472,7 @@ public class MiniJavaParser extends Parser {
 				{
 				setState(237); match(SYSTEMPRINT);
 				setState(238); match(LPREN);
-				setState(239); eQE();
+				setState(239); cE();
 				setState(240); match(RPREN);
 				setState(241); match(SEMI);
 				}
@@ -1486,7 +1482,7 @@ public class MiniJavaParser extends Parser {
 				{
 				setState(243); match(ID);
 				setState(244); match(ASSIGN);
-				setState(245); eQE();
+				setState(245); cE();
 				setState(246); match(SEMI);
 				}
 				break;
@@ -1568,8 +1564,8 @@ public class MiniJavaParser extends Parser {
 		"\3\u0430\ud6d1\u8206\uad2d\u4417\uaef1\u8d80\uaadd\3\62\u0103\4\2\t\2"+
 		"\4\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\4\n\t\n\4\13"+
 		"\t\13\4\f\t\f\4\r\t\r\4\16\t\16\4\17\t\17\4\20\t\20\4\21\t\21\4\22\t\22"+
-		"\4\23\t\23\4\24\t\24\4\25\t\25\4\26\t\26\4\27\t\27\3\2\3\2\3\2\3\2\3\2"+
-		"\5\2\64\n\2\3\3\3\3\3\3\3\4\3\4\3\4\5\4<\n\4\3\5\3\5\3\5\3\6\3\6\3\6\3"+
+		"\4\23\t\23\4\24\t\24\4\25\t\25\4\26\t\26\4\27\t\27\3\2\3\2\3\2\3\3\3\3"+
+		"\3\3\5\3\65\n\3\3\4\3\4\3\4\3\5\3\5\3\5\3\5\3\5\5\5?\n\5\3\6\3\6\3\6\3"+
 		"\6\3\6\5\6F\n\6\3\7\3\7\3\7\3\b\3\b\3\b\3\b\3\b\5\bP\n\b\3\t\3\t\3\t\3"+
 		"\n\3\n\3\n\3\n\3\n\5\nZ\n\n\3\13\3\13\3\13\5\13_\n\13\3\f\3\f\3\f\3\r"+
 		"\3\r\3\r\3\r\3\r\3\r\3\r\7\rk\n\r\f\r\16\rn\13\r\5\rp\n\r\3\r\3\r\3\r"+
@@ -1585,16 +1581,16 @@ public class MiniJavaParser extends Parser {
 		"\3\26\3\26\3\26\3\26\3\26\3\26\3\26\3\26\3\26\3\26\3\26\3\26\3\26\3\26"+
 		"\3\26\3\26\3\26\3\26\3\26\3\26\3\26\3\26\3\26\5\26\u00fb\n\26\3\27\3\27"+
 		"\3\27\3\27\5\27\u0101\n\27\3\27\2\2\30\2\4\6\b\n\f\16\20\22\24\26\30\32"+
-		"\34\36 \"$&(*,\2\t\3\2\3\4\3\2\5\b\3\2\t\n\3\2\13\f\3\2\r\16\4\2\f\f\17"+
-		"\17\4\2\'(\60\60\u0108\2\63\3\2\2\2\4\65\3\2\2\2\6;\3\2\2\2\b=\3\2\2\2"+
+		"\34\36 \"$&(*,\2\t\3\2\5\b\3\2\t\n\3\2\3\4\3\2\13\f\3\2\r\16\4\2\f\f\17"+
+		"\17\4\2\'(\60\60\u0108\2.\3\2\2\2\4\64\3\2\2\2\6\66\3\2\2\2\b>\3\2\2\2"+
 		"\nE\3\2\2\2\fG\3\2\2\2\16O\3\2\2\2\20Q\3\2\2\2\22Y\3\2\2\2\24^\3\2\2\2"+
 		"\26`\3\2\2\2\30t\3\2\2\2\32\u0084\3\2\2\2\34\u0086\3\2\2\2\36\u008f\3"+
 		"\2\2\2 \u00a1\3\2\2\2\"\u00b7\3\2\2\2$\u00bb\3\2\2\2&\u00d2\3\2\2\2(\u00d4"+
-		"\3\2\2\2*\u00fa\3\2\2\2,\u0100\3\2\2\2./\5\4\3\2/\60\t\2\2\2\60\61\5\4"+
-		"\3\2\61\64\3\2\2\2\62\64\5\4\3\2\63.\3\2\2\2\63\62\3\2\2\2\64\3\3\2\2"+
-		"\2\65\66\5\b\5\2\66\67\5\6\4\2\67\5\3\2\2\289\t\3\2\29<\5\b\5\2:<\3\2"+
-		"\2\2;8\3\2\2\2;:\3\2\2\2<\7\3\2\2\2=>\5\f\7\2>?\5\n\6\2?\t\3\2\2\2@A\t"+
-		"\4\2\2AB\5\f\7\2BC\5\n\6\2CF\3\2\2\2DF\3\2\2\2E@\3\2\2\2ED\3\2\2\2F\13"+
+		"\3\2\2\2*\u00fa\3\2\2\2,\u0100\3\2\2\2./\5\6\4\2/\60\5\4\3\2\60\3\3\2"+
+		"\2\2\61\62\t\2\2\2\62\65\5\6\4\2\63\65\3\2\2\2\64\61\3\2\2\2\64\63\3\2"+
+		"\2\2\65\5\3\2\2\2\66\67\5\n\6\2\678\5\b\5\28\7\3\2\2\29:\t\3\2\2:;\5\n"+
+		"\6\2;<\5\b\5\2<?\3\2\2\2=?\3\2\2\2>9\3\2\2\2>=\3\2\2\2?\t\3\2\2\2@A\5"+
+		"\f\7\2AB\t\4\2\2BC\5\f\7\2CF\3\2\2\2DF\5\f\7\2E@\3\2\2\2ED\3\2\2\2F\13"+
 		"\3\2\2\2GH\5\20\t\2HI\5\16\b\2I\r\3\2\2\2JK\t\5\2\2KL\5\20\t\2LM\5\16"+
 		"\b\2MP\3\2\2\2NP\3\2\2\2OJ\3\2\2\2ON\3\2\2\2P\17\3\2\2\2QR\5\24\13\2R"+
 		"S\5\22\n\2S\21\3\2\2\2TU\t\6\2\2UV\5\24\13\2VW\5\22\n\2WZ\3\2\2\2XZ\3"+
@@ -1647,7 +1643,7 @@ public class MiniJavaParser extends Parser {
 		"\3\2\2\2\u00fa\u00e9\3\2\2\2\u00fa\u00ef\3\2\2\2\u00fa\u00f5\3\2\2\2\u00fb"+
 		"+\3\2\2\2\u00fc\u00fd\5*\26\2\u00fd\u00fe\5,\27\2\u00fe\u0101\3\2\2\2"+
 		"\u00ff\u0101\3\2\2\2\u0100\u00fc\3\2\2\2\u0100\u00ff\3\2\2\2\u0101-\3"+
-		"\2\2\2\24\63;EOY^lot\u0084\u008a\u00a6\u00ac\u00b2\u00c5\u00c8\u00fa\u0100";
+		"\2\2\2\24\64>EOY^lot\u0084\u008a\u00a6\u00ac\u00b2\u00c5\u00c8\u00fa\u0100";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 	static {
