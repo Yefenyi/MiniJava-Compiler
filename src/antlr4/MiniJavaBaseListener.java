@@ -41,6 +41,18 @@ public class MiniJavaBaseListener implements MiniJavaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterAE(@NotNull MiniJavaParser.AEContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitAE(@NotNull MiniJavaParser.AEContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterMainClassDecl(@NotNull MiniJavaParser.MainClassDeclContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -108,6 +120,18 @@ public class MiniJavaBaseListener implements MiniJavaListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitType(@NotNull MiniJavaParser.TypeContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterAEP(@NotNull MiniJavaParser.AEPContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitAEP(@NotNull MiniJavaParser.AEPContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -197,18 +221,6 @@ public class MiniJavaBaseListener implements MiniJavaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterAOEP(@NotNull MiniJavaParser.AOEPContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitAOEP(@NotNull MiniJavaParser.AOEPContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterClassVarDecl(@NotNull MiniJavaParser.ClassVarDeclContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -221,13 +233,13 @@ public class MiniJavaBaseListener implements MiniJavaListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterAOE(@NotNull MiniJavaParser.AOEContext ctx) { }
+	@Override public void enterOE(@NotNull MiniJavaParser.OEContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitAOE(@NotNull MiniJavaParser.AOEContext ctx) { }
+	@Override public void exitOE(@NotNull MiniJavaParser.OEContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -252,6 +264,18 @@ public class MiniJavaBaseListener implements MiniJavaListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitEQE(@NotNull MiniJavaParser.EQEContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterOEP(@NotNull MiniJavaParser.OEPContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitOEP(@NotNull MiniJavaParser.OEPContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

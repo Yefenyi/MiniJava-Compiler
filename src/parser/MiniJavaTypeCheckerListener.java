@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.misc.NotNull;
@@ -13,8 +12,8 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import antlr4.MiniJavaBaseListener;
 import antlr4.MiniJavaLexer;
 import antlr4.MiniJavaParser;
-import antlr4.MiniJavaParser.AOEContext;
-import antlr4.MiniJavaParser.AOEPContext;
+import antlr4.MiniJavaParser.AEContext;
+import antlr4.MiniJavaParser.AEPContext;
 import antlr4.MiniJavaParser.ASEContext;
 import antlr4.MiniJavaParser.ASEPContext;
 import antlr4.MiniJavaParser.CEContext;
@@ -30,6 +29,8 @@ import antlr4.MiniJavaParser.MDEPContext;
 import antlr4.MiniJavaParser.MainClassDeclContext;
 import antlr4.MiniJavaParser.MethodDeclContext;
 import antlr4.MiniJavaParser.NEContext;
+import antlr4.MiniJavaParser.OEContext;
+import antlr4.MiniJavaParser.OEPContext;
 
 public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 	public int errorCount;
@@ -238,14 +239,30 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 	}
 	
 	@Override
-	public void enterAOE(@NotNull MiniJavaParser.AOEContext ctx) {
+	public void enterAE(@NotNull MiniJavaParser.AEContext ctx) {
 		if(!expressionType(ctx.getChild(0)).equals("boolean")) {
 			this.addError("Expected boolean value: " + ctx.getText());
 		}
 	}
 	
 	@Override
-	public void enterAOEP(@NotNull MiniJavaParser.AOEPContext ctx) {
+	public void enterOE(@NotNull MiniJavaParser.OEContext ctx) {
+		if(!expressionType(ctx.getChild(0)).equals("boolean")) {
+			this.addError("Expected boolean value: " + ctx.getText());
+		}
+	}
+	
+	@Override
+	public void enterAEP(@NotNull MiniJavaParser.AEPContext ctx) {
+		if(ctx.getChildCount() == 3) {
+			if(!expressionType(ctx.getChild(1)).equals("boolean")) {
+				this.addError("Expected boolean value: " + ctx.getParent().getText());
+			}
+		}
+	}
+	
+	@Override
+	public void enterOEP(@NotNull MiniJavaParser.OEPContext ctx) {
 		if(ctx.getChildCount() == 3) {
 			if(!expressionType(ctx.getChild(1)).equals("boolean")) {
 				this.addError("Expected boolean value: " + ctx.getParent().getText());
@@ -469,9 +486,13 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 			return "boolean";
 		}else if(pt instanceof CEPContext){
 			return "boolean";
-		}else if(pt instanceof AOEContext){
+		}else if(pt instanceof AEContext){
 			return "boolean";
-		}else if(pt instanceof AOEPContext){
+		}else if(pt instanceof AEPContext){
+			return "boolean";
+		}else if(pt instanceof OEContext){
+			return "boolean";
+		}else if(pt instanceof OEPContext){
 			return "boolean";
 		}else if(pt instanceof ASEContext){
 			return "int";
