@@ -183,8 +183,10 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 		String methodName = ctx.getChild(2).getText();
 		ParsedMethod pMethod = pClass.getNameToMethod().get(methodName);
 		Map<String,ParsedIdentifier> newLevel = new HashMap<String,ParsedIdentifier>();
-		for(ParsedIdentifier pIdent : pMethod.getIdentifierList()) {
-			newLevel.put(pIdent.getName(), pIdent);
+		if(pMethod!=null){
+			for(ParsedIdentifier pIdent : pMethod.getIdentifierList()) {
+				newLevel.put(pIdent.getName(), pIdent);
+			}
 		}
 		env.addLevel(newLevel);
 	}
@@ -194,11 +196,13 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 		String methodName = ctx.getChild(2).getText();
 		ParsedClass pClass = classMap.get(activeClass);
 		ParsedMethod parsedMethod = pClass.getNameToMethod().get(methodName);
-		String expectedReturnType = parsedMethod.getReturnType();
-		List<String> actualReturnType = this.getReturnType(ctx.getChild(ctx.getChildCount() - 3));
-		if(!actualReturnType.contains(expectedReturnType)) {
-			System.out.println(ctx.getChild(ctx.getChildCount() - 3).getText());
-			this.addError("Return type " + actualReturnType+ " does not match expected return type " + expectedReturnType.toString());
+		if(parsedMethod!=null){
+			String expectedReturnType = parsedMethod.getReturnType();
+			List<String> actualReturnType = this.getReturnType(ctx.getChild(ctx.getChildCount() - 3));
+			if(!actualReturnType.contains(expectedReturnType)) {
+				System.out.println(ctx.getChild(ctx.getChildCount() - 3).getText());
+				this.addError("Return type " + actualReturnType+ " does not match expected return type " + expectedReturnType.toString());
+			}
 		}
 		env.removeLevel();
 	}
