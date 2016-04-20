@@ -599,6 +599,10 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 	
 	private boolean isType(String type, ParseTree pt){
 		String baseType = this.expressionType(pt);
+		if(baseType==null){
+			this.addError("Variable "+pt.getText()+" does not exist");
+			return true;
+		}
 		if(baseType.equals("null")){
 			return this.classMap.containsKey(type);
 		} else {
