@@ -389,14 +389,14 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 
 	private String expressionType(ParseTree pt){
 		if(pt instanceof DEContext){
-			String HPE = ((DEContext) pt).children.get(0).getText(); //Class variable or this
+			String HPE = this.expressionType(((DEContext) pt).getChild(0));//((DEContext) pt).children.get(0).getText(); //Class variable or this
 			ParseTree DEP = pt.getChild(1); //method being called
 			ParseTree nextCall =  DEP.getChild(DEP.getChildCount()-1);
 			ParsedClass pc;
 			if(HPE.equals("this")){
 				pc = this.classMap.get(this.activeClass);
 			}else{
-				pc = this.classMap.get(this.env.getIdentifierType(HPE));
+				pc = this.classMap.get(HPE);//this.env.getIdentifierType(HPE));
 			}
 			if(pc==null){
 				this.addError("Variable "+HPE+" is not defined");
