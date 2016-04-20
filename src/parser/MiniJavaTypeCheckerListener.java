@@ -368,14 +368,16 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 					singleType = "boolean";
 				} else if(t.getType() == MiniJavaLexer.ID){
 					singleType = this.env.getIdentifierType(t.getText());
+					if(singleType==null){
+						List<String> output = this.getClassesList();
+						output.add("int");
+						output.add("boolean");
+						return output;
+					}
 				}else if(t.getType() == MiniJavaLexer.THIS){
 					singleType = this.activeClass;
 				}else if(t.getType()==MiniJavaLexer.NULL){
-					List<String> output = new ArrayList<String>();
-					for(String Key:this.classMap.keySet()){
-						output.add(Key);
-					}
-					return output;
+					return this.getClassesList();
 				}
 			}
 		}else{
@@ -384,6 +386,14 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 		return this.getPossibleTypes(singleType);
 	}
 	
+	private List<String> getClassesList() {
+		List<String> output = new ArrayList<String>();
+		for(String Key:this.classMap.keySet()){
+			output.add(Key);
+		}
+		return output;
+	}
+
 	private List<String> getPossibleTypes(String singleType) {
 		List<String> output = new ArrayList<String>();
 		output.add(singleType);
@@ -495,8 +505,8 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 			}
 		}
 		//System.out.println(pt.getText());
-		System.out.println(pt.getText() + ", Token" + pt.getPayload().toString());
-		return "supernull";
+		//System.out.println(pt.getText() + ", Token " + pt.getPayload().toString());
+		return pt.getText();
 	}
 	
 	private ParsedMethod getMethod(String name, ParsedClass pc){
