@@ -322,6 +322,11 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 	@Override
 	public void enterStmt(@NotNull MiniJavaParser.StmtContext ctx) {
 		if(ctx.getChildCount() == 4) {//ID = EQE; 
+
+			if(!this.env.identifierExists(ctx.getChild(0).getText())){
+				this.addError("ID "+ctx.getChild(0).getText()+" does not exist");
+				return;
+			}
 			String expectedType = env.getIdentifierType(ctx.getChild(0).getText());
 			String actualType = expressionType(ctx.getChild(2));
 			List<String> possibleTypes = new ArrayList<String>();
@@ -511,7 +516,7 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 				}else if(t.getType()==(MiniJavaLexer.TRUE)){
 					return "boolean";
 				}else if(t.getType()==(MiniJavaLexer.NULL)){
-					return null;
+					return "null";
 				}else if(t.getType()==MiniJavaLexer.ID){
 					return this.env.getIdentifierType(pt.getText());
 				}else if(t.getType()==(MiniJavaLexer.THIS)){
