@@ -52,7 +52,7 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 	}
 	
 	private void addError(String errorDescription) {
-		System.out.println(errorDescription);
+		//System.out.println(errorDescription);
 		++this.errorCount;
 		this.errors.add(errorDescription);
 	}
@@ -99,6 +99,7 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 							} else {
 								if(parsedClass.hasField(identName)) {
 									this.addError("Variable names cannot be shadowed. Argument " + identName + " is already defined as a field");
+									identList.add(new ParsedIdentifier(identName, identType));
 								} else {
 									identList.add(new ParsedIdentifier(identName, identType));
 								}
@@ -518,7 +519,12 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 				}else if(t.getType()==(MiniJavaLexer.NULL)){
 					return "null";
 				}else if(t.getType()==MiniJavaLexer.ID){
-					return this.env.getIdentifierType(pt.getText());
+					String type = env.getIdentifierType(pt.getText());
+					if(type == null) {
+						this.addError("Variable " + pt.getText() + " has not been declared");
+					} else {
+						return type;
+					}
 				}else if(t.getType()==(MiniJavaLexer.THIS)){
 					return this.activeClass;
 				}
