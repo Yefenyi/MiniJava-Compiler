@@ -109,8 +109,19 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 					ParsedMethod pMethod = new ParsedMethod(name, returnType, identList, method);
 					if(parsedClass.hasMethod(name)) {
 						this.addError("Method has already been defined: " + name);
-					} else if (parrentClass!=null && !pMethod.validOverride(parrentClass.getNameToMethod().get(name))){
-						this.addError("Cannot overload methods: " + name);
+					} else if (parrentClass!=null){
+						boolean flag = true;
+						while(parrentClass!=null){
+							if(!pMethod.validOverride(parrentClass.getNameToMethod().get(name))){
+								this.addError("Cannot overload methods: " + name);
+								flag=false;
+							}
+							parrentClass = this.classMap.get(parrentClass.extendsClass);
+						}
+						parrentClass = this.classMap.get(parsedClass.extendsClass);
+						if(flag){
+							parsedClass.addMethod(pMethod);
+						}
 					}else {
 						parsedClass.addMethod(pMethod);
 					}
@@ -351,7 +362,7 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 				if(!possibleTypes.contains(expectedType)) {
 					this.addError("Assignment type mismatch: Expected type " + possibleTypes.toString() + " does not match type " + expectedType);
 				} else if(this.env.getIdentifierType(ctx.getChild(1).getText())!=null){
-					this.addError("Variable "+ctx.getChild(1).getText()+"has allready been assigned");
+					this.addError("Variable "+ctx.getChild(1).getText()+" has allready been assigned");
 				}else {
 					ParsedIdentifier pIdent = new ParsedIdentifier(ctx.getChild(1).getText(), expectedType);
 					env.addIdentifier(pIdent);
