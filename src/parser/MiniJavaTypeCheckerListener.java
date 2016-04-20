@@ -21,6 +21,7 @@ import antlr4.MiniJavaParser.CEPContext;
 import antlr4.MiniJavaParser.ClassDeclContext;
 import antlr4.MiniJavaParser.ClassVarDeclContext;
 import antlr4.MiniJavaParser.DEContext;
+import antlr4.MiniJavaParser.DEPContext;
 import antlr4.MiniJavaParser.EQEContext;
 import antlr4.MiniJavaParser.FormalContext;
 import antlr4.MiniJavaParser.HPEContext;
@@ -51,7 +52,7 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 	}
 	
 	private void addError(String errorDescription) {
-		//System.err.println(errorDescription);
+		System.out.println(errorDescription);
 		++this.errorCount;
 		this.errors.add(errorDescription);
 	}
@@ -328,11 +329,13 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 				for (String key:this.classMap.keySet()){
 					possibleTypes.add(key);
 				}
+				possibleTypes.add("int");
+				possibleTypes.add("boolean");
 			}else{
 				possibleTypes= getPossibleTypes(actualType);
 			}
 			if(!possibleTypes.contains(expectedType)) {
-				this.addError("Assignment type mismatch: Expected type " + possibleTypes.toString() + " does not match type " + expectedType);
+				//this.addError("Assignment type mismatch: Expected type " + possibleTypes.toString() + " does not match type " + expectedType);
 			}
 		} else if(ctx.getChildCount() == 5) {
 			if(ctx.getChild(2).getText().equals("=")) {//TYPE ID = EQE ;
@@ -341,7 +344,9 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 				List<String> possibleTypes = getPossibleTypes(actualType);
 				if(!possibleTypes.contains(expectedType)) {
 					this.addError("Assignment type mismatch: Expected type " + possibleTypes.toString() + " does not match type " + expectedType);
-				} else {
+				} else if(this.env.getIdentifierType(ctx.getChild(1).getText())!=null){
+					this.addError("Variable "+ctx.getChild(1).getText()+"has allready been assigned");
+				}else {
 					ParsedIdentifier pIdent = new ParsedIdentifier(ctx.getChild(1).getText(), expectedType);
 					env.addIdentifier(pIdent);
 				}
@@ -437,46 +442,79 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 
 	private String expressionType(ParseTree pt){
 		if(pt instanceof DEContext){
-			String HPE = this.expressionType(((DEContext) pt).getChild(0));//((DEContext) pt).children.get(0).getText(); //Class variable or this
+			String HPE = this.expressionType(((DEContext) pt).getChild(0)); //Class variable or this
 			ParseTree DEP = pt.getChild(1); //method being called
 			ParseTree nextCall =  DEP.getChild(DEP.getChildCount()-1);
 			ParsedClass pc;
 			if(HPE.equals("this")){
 				pc = this.classMap.get(this.activeClass);
 			}else{
-				pc = this.classMap.get(HPE);//this.env.getIdentifierType(HPE));
+				pc = this.classMap.get(HPE);
 			}
 			if(pc==null){
 				this.addError("Variable "+HPE+" is not defined");
 				return "null";
 			}
-			//TODO: Make sure arguments are of right type
 			ParsedMethod currentMethod = this.getMethod(DEP.getChild(1).getText(),pc);
 			if(currentMethod==null){
 				this.addError("Method "+DEP.getChild(1).getText()+" is never declared");
 				return "null";
 			}
+			int i=0;
+			int j=0;
+			for(ParseTree child  : ((DEPContext) DEP).children ){
+				String c = child.getText();
+				if(c.equals(",")||c.equals("(")||c.equals(".")||c.equals(")")){
+					//Pass
+				}else if(j!=1 && j<DEP.getChildCount()-1){
+					if(!this.isType(currentMethod.identifierList.get(i).getType(),child)){
+						this.addError("Invalid argument to method "+currentMethod.getName());
+					}
+					i++;
+				}
+				j++;
+			}
 			String returnType = currentMethod.getReturnType();
 			while(nextCall.getChildCount()!=0){
+				i=0;
+				j=0;
+				for(ParseTree child  : ((DEPContext) DEP).children ){
+					String c = child.getText();
+					if(c.equals(",")||c.equals("(")||c.equals(".")||c.equals(")")){
+						//Pass
+					}else if(j!=1 && j<DEP.getChildCount()-1){
+						if(!this.isType(currentMethod.identifierList.get(i).getType(),child)){
+							this.addError("Invalid argument to method "+currentMethod.getName());
+						}
+						i++;
+					}
+					j++;
+				}
 				returnType = pc.getNameToMethod().get(DEP.getChild(1).getText()).getReturnType();
 				pc = this.classMap.get(returnType);
 				DEP = nextCall;
+				currentMethod = this.getMethod(DEP.getChild(1).getText(),pc);
+				if(currentMethod==null){
+					this.addError("Method "+DEP.getChild(1).getText()+" is never declared");
+					return "null";
+				}
 				nextCall = nextCall.getChild(nextCall.getChildCount()-1);
 			}
 			return returnType;
 		}else if(pt instanceof HPEContext){
 			if(pt.getChildCount()==1){
-				if(pt.getChild(0).getPayload().equals(MiniJavaLexer.INT)){
+				Token t = ((Token) pt.getChild(0).getPayload());
+				if(t.getType()==(MiniJavaLexer.INT)){
 					return "int";
-				}else if(pt.getChild(0).getPayload().equals(MiniJavaLexer.FALSE)){
+				}else if(t.getType()==(MiniJavaLexer.FALSE)){
 					return "boolean";
-				}else if(pt.getChild(0).getPayload().equals(MiniJavaLexer.TRUE)){
+				}else if(t.getType()==(MiniJavaLexer.TRUE)){
 					return "boolean";
-				}else if(pt.getChild(0).getPayload().equals(MiniJavaLexer.NULL)){
+				}else if(t.getType()==(MiniJavaLexer.NULL)){
 					return null;
-				}else if(pt.getChild(0).getPayload().equals(MiniJavaLexer.ID)){
+				}else if(t.getType()==MiniJavaLexer.ID){
 					return this.env.getIdentifierType(pt.getText());
-				}else if(pt.getChild(0).getPayload().equals(MiniJavaLexer.THIS)){
+				}else if(t.getType()==(MiniJavaLexer.THIS)){
 					return this.activeClass;
 				}
 			}else if(pt.getChildCount()==4){
