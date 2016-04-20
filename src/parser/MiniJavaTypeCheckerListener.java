@@ -67,9 +67,14 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 			ParsedClass parsedClass = new ParsedClass(className);
 			ParsedClass parrentClass = null;
 			if(classDec.getChild(2).getText().toLowerCase().equals("extends")){
+				
 				String parentName = classDec.getChild(3).getText();
-				parrentClass = classMap.get(parentName);
-				parsedClass.setExtendsClass(parentName);
+				if(this.classMap.containsKey(parentName)){
+					parrentClass = classMap.get(parentName);
+					parsedClass.setExtendsClass(parentName);
+				}else {
+					this.addError("Cannot extend class becuase class: "+parentName+" is not defined");
+				}
 			}
 			for(ParseTree pt : classDec.children) {
 				if(pt instanceof MethodDeclContext) {
