@@ -32,7 +32,8 @@ import antlr4.MiniJavaParser.MethodDeclContext;
 import antlr4.MiniJavaParser.NEContext;
 
 public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
-	private int errorCount;
+	public int errorCount;
+	public List<String> errors = new ArrayList<String>();
 	private Map<String,ParsedClass> classMap;
 	private String activeClass;
 	private EnvironmentTracker env;
@@ -51,6 +52,7 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 	private void addError(String errorDescription) {
 		System.err.println(errorDescription);
 		++this.errorCount;
+		this.errors.add(errorDescription);
 	}
 	
 	@Override

@@ -54,8 +54,8 @@ public class TypeCheckerDriver {
 		tree.getChildCount();
 		
 		
-		System.out.println(tree.toStringTree(parser));
-		System.out.println("Error count: " + parser.getNumberOfSyntaxErrors());
+		//System.out.println(tree.toStringTree(parser));
+		//System.out.println("Error count: " + parser.getNumberOfSyntaxErrors());
 		
 		ParseTreeWalker walker = new ParseTreeWalker();
 		MiniJavaNodePrunerListener listener = new MiniJavaNodePrunerListener();
@@ -67,6 +67,13 @@ public class TypeCheckerDriver {
 		MiniJavaTypeCheckerListener listener3 = new MiniJavaTypeCheckerListener();
 		walker.walk(listener3, tree);
 		
+		if(listener3.errorCount==0){
+			System.out.println("Sucess!");
+		}else{
+			for(String error: listener3.errors){
+				System.out.println(error);//TODO automate type checker tests
+			}
+		}
 		JFrame frame = new JFrame("Antlr AST");
 		JPanel panel = new JPanel();
 		JScrollPane scrPane = new JScrollPane(panel);
