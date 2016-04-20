@@ -113,7 +113,18 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 					if(parsedClass.hasField(name)) {
 						this.addError("Field has already been defined: " + name);
 					} else {
-						parsedClass.addField(pIdent);
+						ParsedClass parrent = this.classMap.get(parsedClass.extendsClass);
+						boolean flag = true;
+						while(parrent!=null){
+							if(parrent.getNameToField().containsKey(name)){
+								this.addError("Cannot overide field "+ name);
+								flag = false;
+							}
+							parrent = this.classMap.get(parrent.extendsClass);
+						}
+						if(flag){
+							parsedClass.addField(pIdent);	
+						}
 					}
 				}
 			}
@@ -280,8 +291,6 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 			}
 		}
 	}
-
-	//TODO: Need many more statements
 	@Override
 	public void enterStmt(@NotNull MiniJavaParser.StmtContext ctx) {
 		if(ctx.getChildCount() == 4) {//ID = EQE; 
