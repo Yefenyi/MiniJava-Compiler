@@ -431,6 +431,10 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 			}
 			//TODO: Make sure arguments are of right type
 			ParsedMethod currentMethod = this.getMethod(DEP.getChild(1).getText(),pc);
+			if(currentMethod==null){
+				this.addError("Method "+DEP.getChild(1).getText()+" is never declared");
+				return "null";
+			}
 			String returnType = currentMethod.getReturnType();
 			while(nextCall.getChildCount()!=0){
 				returnType = pc.getNameToMethod().get(DEP.getChild(1).getText()).getReturnType();
@@ -531,8 +535,7 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 		String compareType = this.expressionType(oneTypeTree);
 		List<String> types = this.getPossibleTypes(this.expressionType(multipleTypeTree));
 		if(compareType.equals("null")){
-			System.out.println("Fix this here");
-			return false;
+			return true;
 		}else{
 			return types.contains(compareType);
 		}
