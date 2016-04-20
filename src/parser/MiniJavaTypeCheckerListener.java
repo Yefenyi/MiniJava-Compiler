@@ -205,7 +205,7 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 			String expectedReturnType = parsedMethod.getReturnType();
 			List<String> actualReturnType = this.getReturnType(ctx.getChild(ctx.getChildCount() - 3));
 			if(!actualReturnType.contains(expectedReturnType)) {
-				System.out.println(ctx.getChild(ctx.getChildCount() - 3).getText());
+				//System.out.println(ctx.getChild(ctx.getChildCount() - 3).getText());
 				this.addError("Return type " + actualReturnType+ " does not match expected return type " + expectedReturnType.toString());
 			}
 		}
@@ -370,6 +370,12 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 					singleType = this.env.getIdentifierType(t.getText());
 				}else if(t.getType() == MiniJavaLexer.THIS){
 					singleType = this.activeClass;
+				}else if(t.getType()==MiniJavaLexer.NULL){
+					List<String> output = new ArrayList<String>();
+					for(String Key:this.classMap.keySet()){
+						output.add(Key);
+					}
+					return output;
 				}
 			}
 		}else{
