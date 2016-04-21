@@ -1,0 +1,2 @@
+Assignment type mismatch: Expected type [boolean] does not match type int
+Return type [Test4b, Test4a] does not match expected return type int

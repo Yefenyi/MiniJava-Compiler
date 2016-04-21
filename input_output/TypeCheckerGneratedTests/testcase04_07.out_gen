@@ -1,0 +1,6 @@
+Variable a has allready been assigned
+Variable b has allready been assigned
+Variable a has allready been assigned
+Variable b has allready been assigned
+Expected boolean value: a&&b
+Expected boolean value: a&&b

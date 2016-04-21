@@ -1,0 +1,5 @@
+Invalid argument to method eliminateNaughty
+Method developLists is never declared
+Assignment type mismatch: Expected type [null, Dude, Santa, Xmas] does not match type int
+Return type [int] does not match expected return type boolean
+Assignment type mismatch: Expected type [Xmas] does not match type Santa

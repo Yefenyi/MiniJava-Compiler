@@ -1,0 +1,3 @@
+Assignment type mismatch: Expected type [boolean] does not match type int
+Method nonExistingMethod is never declared
+Assignment type mismatch: Expected type [null, Bar, Foo, Baz] does not match type int

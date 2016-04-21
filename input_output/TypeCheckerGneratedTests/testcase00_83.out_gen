@@ -1,0 +1,3 @@
+Assignment type mismatch: Expected type [boolean] does not match type int
+Expected boolean value: a&&b
+Expected boolean value: a&&b

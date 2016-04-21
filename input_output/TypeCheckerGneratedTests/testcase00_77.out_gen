@@ -1,0 +1,15 @@
+Field has already been defined: x
+Cannot overide field x
+Cannot overide field y
+Method has already been defined: tryToRedeclare
+Cannot overload methods: overrideWithTooFew
+Cannot overload methods: overrideWithTooMany
+Cannot overload methods: switchParameterTypes
+Type Point has not been defined
+Variable a has not been declared
+System.out.println can only print ints
+System.out.println can only print ints
+Type Point has not been defined
+Return type [int] does not match expected return type boolean
+Return type [boolean] does not match expected return type int
+Type Point has not been defined

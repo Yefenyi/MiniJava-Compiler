@@ -1,0 +1,10 @@
+Expected integer value for expression: 3+true
+Expected integer value for expression: 4/false
+Assignment type mismatch: Expected type [boolean] does not match type int
+Expected boolean value: true-(true&&18)||y
+Expected integer value for expression: true-(true&&18)
+Expected integer value for expression: true-(true&&18)
+Expected boolean value: true&&18
+Expected boolean value: true-(true&&18)||y
+Variable x has not been declared
+Assignment type mismatch: Expected type [x] does not match type int

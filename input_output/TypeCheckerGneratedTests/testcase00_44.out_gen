@@ -1,0 +1,4 @@
+Variable bar has not been declared
+Variable bar is not defined
+System.out.println can only print ints
+Return type [boolean] does not match expected return type int

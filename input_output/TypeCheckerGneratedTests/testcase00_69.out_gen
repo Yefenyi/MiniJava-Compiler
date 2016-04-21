@@ -1,0 +1,4 @@
+Method has already been defined: predicate
+Invalid number of arguments to method predicate
+Variable y has not been declared
+Expected integer value for comparison: y<z

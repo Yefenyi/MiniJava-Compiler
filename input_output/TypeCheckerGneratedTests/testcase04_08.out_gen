@@ -1,0 +1,2 @@
+Variable names cannot be shadowed. Argument Class2 is already defined as a field
+System.out.println can only print ints

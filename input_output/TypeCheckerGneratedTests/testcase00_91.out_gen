@@ -1,0 +1,2 @@
+Return type [int] does not match expected return type boolean
+Expected boolean value: null||true

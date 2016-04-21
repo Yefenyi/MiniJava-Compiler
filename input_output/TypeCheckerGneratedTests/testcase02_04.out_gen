@@ -1,0 +1,5 @@
+Variable names cannot be shadowed. Argument myInt is already defined as a field
+Variable names cannot be shadowed. Argument myBar is already defined as a field
+Variable names cannot be shadowed. Argument myBoolean is already defined as a field
+Incorect type for if statement
+Method shadowCheck is never declared

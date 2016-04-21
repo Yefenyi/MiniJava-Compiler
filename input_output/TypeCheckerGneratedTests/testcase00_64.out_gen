@@ -1,0 +1,7 @@
+Expected integer value for comparison: x<true
+ID y does not exist
+Variable y has not been declared
+Expected integer value for expression: y+3
+Variable y has not been declared
+Assignment type mismatch: Expected type [y] does not match type int
+System.out.println can only print ints

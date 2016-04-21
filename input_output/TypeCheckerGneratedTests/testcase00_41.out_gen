@@ -1,0 +1,5 @@
+Assignment type mismatch: Expected type [boolean] does not match type int
+Variable alpha has not been declared
+Invalid argument to method commit
+Assignment type mismatch: Expected type [Bar] does not match type int
+Expected integer value for comparison: x>(uno+quatro)

@@ -1,0 +1,6 @@
+Variable this does not exist
+Expected integer value for expression: true+40
+Invalid argument to method xyzzy
+Assignment type mismatch: Expected type [Test6] does not match type Test7
+Assignment type mismatch: Expected type [Test6] does not match type Test8
+Assignment type mismatch: Expected type [Test8, Test7, Test6] does not match type Test9

@@ -1,0 +1,5 @@
+Variable names cannot be shadowed. Argument a is already defined as a field
+Variable names cannot be shadowed. Argument b is already defined as a field
+Variable bar has not been declared
+Invalid argument to method add
+Invalid argument to method add

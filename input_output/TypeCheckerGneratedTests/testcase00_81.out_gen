@@ -1,0 +1,11 @@
+ID a does not exist
+Variable i has allready been assigned
+Assignment type mismatch: Expected type [int] does not match type boolean
+Assignment type mismatch: Expected type [boolean] does not match type int
+Variable b has not been declared
+Assignment type mismatch: Expected type [b] does not match type boolean
+Variable b has not been declared
+Assignment type mismatch: Expected type [b] does not match type int
+System.out.println can only print ints
+Variable b has not been declared
+System.out.println can only print ints

@@ -1,0 +1,10 @@
+The source code for our program is located in SRC/ Driver and src/parse
+TypeCheckerDriver checks one program for errors and TypeCheckerDriverAll runs all tests
+The output is placed into input_output/TypeCheckerGneratedTests
+
+our error that we print don't always align with some of the test
+cases because the way we treat invalid declarations is different
+in some case, like we throw out a bad method override and then 
+throw errors inside the method because we use the main method
+However if a test cases has at least one error in it we will have
+at least one error in it.

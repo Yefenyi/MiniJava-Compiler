@@ -1,0 +1,4 @@
+Method has already been defined: equal
+Cannot overload methods: equal
+Variable z has not been declared
+Types in comparison 'y==z' are mismatched

@@ -1,0 +1,4 @@
+Assignment type mismatch: Expected type [boolean] does not match type int
+Assignment type mismatch: Expected type [boolean] does not match type int
+Variable value has not been declared
+Expected integer value for expression: value*b

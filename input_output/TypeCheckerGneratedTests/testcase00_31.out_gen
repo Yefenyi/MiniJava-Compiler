@@ -1,0 +1,6 @@
+Cannot extend class becuase class: Bar is not defined
+Method has already been defined: self
+Return type [Baz] does not match expected return type Bar
+Return type [Baz] does not match expected return type Bar
+Type Nonexistant has not been defined
+Return type [Bar] does not match expected return type Nonexistant

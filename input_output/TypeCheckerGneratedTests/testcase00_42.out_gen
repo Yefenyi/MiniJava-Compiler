@@ -1,0 +1,3 @@
+Return type [boolean] does not match expected return type int
+Expected integer value for expression: x-false
+Assignment type mismatch: Expected type [boolean] does not match type int

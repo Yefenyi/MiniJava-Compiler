@@ -1,0 +1,2 @@
+Assignment type mismatch: Expected type [int] does not match type bool
+Type bool has not been defined
