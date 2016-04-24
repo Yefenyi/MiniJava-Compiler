@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.JFrame;
@@ -28,10 +29,13 @@ import antlr4.MiniJavaParser;
 public class CodeGeneratorDriver {
 
 	public static void main(String[] args) {
-		String fileName = "testcase00_61";
-		String in = "input_output/TypeCheckerFullTests/" + fileName + ".java";
+		String fileName = "testcase00_17";
+		String in = "input_output/FullCodeGeneratorFullTests/" + fileName + ".java";
 		GenericDriver driver = new GenericDriver(in);
-		System.out.print(driver.genBasicOutput().toString());
+		List<String> list = driver.genBasicOutput();
+		for(String item:list){
+			System.out.println(item);
+		}
 	}
 
 }

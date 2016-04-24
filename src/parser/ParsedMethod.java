@@ -2,6 +2,8 @@ package parser;
 
 import java.util.List;
 
+import org.antlr.v4.runtime.tree.ParseTree;
+
 import antlr4.MiniJavaParser.MethodDeclContext;
 
 public class ParsedMethod {
@@ -9,9 +11,9 @@ public class ParsedMethod {
 	String name;
 	String returnType;
 	List<ParsedIdentifier> identifierList;
-	MethodDeclContext tree;
+	ParseTree tree;
 	
-	public ParsedMethod(String name, String returnType, List<ParsedIdentifier> identifierList, MethodDeclContext tree) {
+	public ParsedMethod(String name, String returnType, List<ParsedIdentifier> identifierList, ParseTree tree) {
 		this.name  = name;
 		this.returnType = returnType;
 		this.identifierList = identifierList;
@@ -30,7 +32,7 @@ public class ParsedMethod {
 		return identifierList;
 	}
 
-	public MethodDeclContext getTree() {
+	public ParseTree getTree() {
 		return tree;
 	}
 	
