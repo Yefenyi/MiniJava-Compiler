@@ -47,6 +47,9 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 		this.env = new EnvironmentTracker();
 	}
 	
+	public Map<String,ParsedClass> getMap(){
+		return this.classMap;
+	}
 	public int getErrorCount() {
 		return this.errorCount;
 	}
