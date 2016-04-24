@@ -1,15 +1,12 @@
 package driver;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -80,30 +77,12 @@ public class TypeCheckerDriverCheckAll {
 			MiniJavaNodeJumper listener2 = new MiniJavaNodeJumper();
 			walker.walk(listener2, tree);
 			
-			//System.out.println("Starting: " + fileName);
-			//System.out.println("Actual: ");
+			System.out.println("Starting: " + fileName);
+			System.out.println("Actual: ");
 			MiniJavaTypeCheckerListener listener3 = new MiniJavaTypeCheckerListener();
 			walker.walk(listener3, tree);
 			
-			List<String> result = listener3.errors;
-			File fileOut = new File ("input_output/TypeCheckerGneratedTests/" + fileName + ".out_gen");
-			try {
-				BufferedWriter bw = new BufferedWriter(new FileWriter(fileOut));
-				for(String s : result) {
-					bw.write(s);
-					bw.newLine();
-				}
-				if(result.size()==0){
-					bw.write("Success!");
-					bw.newLine();
-				}
-				bw.close();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-			/*if(listener3.errorCount==0){
+			if(listener3.errorCount==0){
 				System.out.println("No type check errors found.");
 			} else {
 				for(String s : listener3.errors) {
@@ -127,7 +106,7 @@ public class TypeCheckerDriverCheckAll {
 				e.printStackTrace();
 				return;
 			}
-			System.out.println("Ending: " + fileName);*/
+			System.out.println("Ending: " + fileName);
 		}
 	}
 
