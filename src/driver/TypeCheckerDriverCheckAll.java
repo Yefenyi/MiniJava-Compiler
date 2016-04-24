@@ -4,19 +4,15 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
+import java.util.List;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
-import org.antlr.v4.runtime.tree.gui.TreeViewer;
 
 import antlr4.MiniJavaLexer;
 import antlr4.MiniJavaParser;
@@ -77,20 +73,10 @@ public class TypeCheckerDriverCheckAll {
 			MiniJavaNodeJumper listener2 = new MiniJavaNodeJumper();
 			walker.walk(listener2, tree);
 			
-			System.out.println("Starting: " + fileName);
-			System.out.println("Actual: ");
 			MiniJavaTypeCheckerListener listener3 = new MiniJavaTypeCheckerListener();
 			walker.walk(listener3, tree);
 			
-			if(listener3.errorCount==0){
-				System.out.println("No type check errors found.");
-			} else {
-				for(String s : listener3.errors) {
-					System.out.println(s);
-				}
-			}
-			
-			System.out.println("Expected: ");
+			List<String> errorList = new ArrayList<String>();
 			fileIn = new File("input_output/TypeCheckerFullTests/" + fileName + ".out");
 			try {
 				br = new BufferedReader(new FileReader(fileIn));
@@ -99,14 +85,20 @@ public class TypeCheckerDriverCheckAll {
 					if(nextLine == null) {
 						break;
 					}
-					System.out.println(nextLine);
+					errorList.add(nextLine);
 				}
 				br.close();
 			} catch (IOException e) {
 				e.printStackTrace();
 				return;
 			}
-			System.out.println("Ending: " + fileName);
+			
+			if(!errorList.get(0).equals("Success!") && listener3.errorCount == 0) {
+				System.out.println(fileName);
+				for(String s : errorList) {
+					System.out.println(s);
+				}
+			}
 		}
 	}
 
