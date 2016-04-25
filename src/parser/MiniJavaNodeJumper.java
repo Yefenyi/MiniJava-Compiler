@@ -38,6 +38,9 @@ public class MiniJavaNodeJumper extends MiniJavaBaseListener {
 				while(node.getChildCount() == 1) {
 					node = node.getChild(0);
 				}
+				if(node instanceof ParserRuleContext) {
+					((ParserRuleContext) node).parent = ctx;
+				}
 				ctx.children.add(i, node);
 			}
 			if(node instanceof StmtListContext) {
