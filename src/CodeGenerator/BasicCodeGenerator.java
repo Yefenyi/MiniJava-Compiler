@@ -14,23 +14,15 @@ import antlr4.MiniJavaLexer;
 import antlr4.MiniJavaParser;
 
 public class BasicCodeGenerator {
-	Map<String,ParsedClass> parsedClassMap;
-	Map<String,GeneratedClass> genClassMap = new HashMap<String,GeneratedClass>();
-	List<Register> regs;
-	int freeReg =0;
+	private Map<String,ParsedClass> parsedClassMap;
+	private Map<String,GeneratedClass> genClassMap = new HashMap<String,GeneratedClass>();
+	private RegisterHandler regs;
+	private int freeReg =0;
 	boolean debug = true;
 	
 	public BasicCodeGenerator(Map<String,ParsedClass> map){
 		this.parsedClassMap = map;
-		this.initRegs();
-	}
-
-	private void initRegs() {
-		//TODO
-		regs = new ArrayList<Register>();
-		for(int i=0;i<10;i++){
-			regs.add(new Register("t",i));
-		}
+		this.regs=new RegisterHandler();
 	}
 
 	public Map<String,GeneratedClass> generate(){
@@ -70,7 +62,7 @@ public class BasicCodeGenerator {
 						//could be a while, print, or deceleration
 						if(true){//TODO change to check System print
 							output.addAll(this.walkTree(pt.getChild(2)));
-							output.addAll(this.SystemPrintFunction(this.regs.get(freeReg)));
+							output.addAll(this.SystemPrintFunction(this.regs.getAssignment(pt.getChild(2))));
 						}
 						
 					}
@@ -80,8 +72,8 @@ public class BasicCodeGenerator {
 					break;
 			case 17:if(debug) System.out.println("Token "+pt.getText());
 					if(((Token) pt.getPayload()).getType() == MiniJavaLexer.INTEGER){
-						this.regs.get(freeReg).setTree(pt);
-						output.add("li "+this.regs.get(freeReg)+", "+pt.getText());
+						this.regs.setAssignment(pt);
+						output.add("li "+this.regs.getAssignment(pt)+", "+pt.getText());
 					}
 					break;
 		}
