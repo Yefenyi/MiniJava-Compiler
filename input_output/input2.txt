@@ -1,11 +1,11 @@
 /** This is input test 2 */
 class Test2 {
 	public static void main (String[] args) {
-		int answer =-=-=+ 0//bad code test
-		while(answer <100({} //comments
-			answer = answer + 1;	///*
-		
-		System.out.println(answer==42,123415); 
-		System.out.pritln(1);
+		System.out.println(1+1);
 	}
 }
+/*class foo {
+	public int bar(){
+		return 0;
+	}
+}*/

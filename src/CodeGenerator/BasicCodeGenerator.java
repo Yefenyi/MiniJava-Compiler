@@ -62,19 +62,35 @@ public class BasicCodeGenerator {
 						//could be a while, print, or deceleration
 						if(true){//TODO change to check System print
 							output.addAll(this.walkTree(pt.getChild(2)));
-							output.addAll(this.SystemPrintFunction(this.regs.getAssignment(pt.getChild(2))));
+							output.addAll(this.SystemPrintFunction(this.regs.getAssignment(pt.getChild(2).getText())));
 						}
 						
 					}
 					break;
-			case 2: //to 16 are for expressions
+			case 2: //cases 2 to 16 are for different possible expressions
 					//TODO 
+					break;
+			case 9: if(debug) System.out.println("Add or Sub "+pt.getText());
+					output.addAll(this.walkTree(pt.getChild(0)));
+					
+					break;
+			case 10:if(debug) System.out.println("Add or Sub Prime"+pt.getText());
+					output.addAll(this.walkTree(pt.getChild(1)));
+					if(pt.getChild(2).getChildCount()!=0){
+						output.addAll(this.walkTree(pt.getChild(2)));
+						//TODO
+					}else{
+						//regs.replaceLast(pt);
+					}
 					break;
 			case 17:if(debug) System.out.println("Token "+pt.getText());
 					if(((Token) pt.getPayload()).getType() == MiniJavaLexer.INTEGER){
-						this.regs.setAssignment(pt);
-						output.add("li "+this.regs.getAssignment(pt)+", "+pt.getText());
+						this.regs.setAssignment(pt.getText());
+						output.add("li "+this.regs.getAssignment(pt.getText())+", "+pt.getText());
 					}
+					break;
+			default:if(debug) System.out.println("unidentifed case: "+pt.getText());
+					if(debug) System.out.println("case number: "+String.valueOf(this.getCaseNumber(pt)));
 					break;
 		}
 		return output;
@@ -85,6 +101,9 @@ public class BasicCodeGenerator {
 		output.add("li $v0, 1");
 		output.add("add $a0, "+reg.toString()+", $zero");
 		output.add("syscall");
+		/*output.add("li $a0 10");
+		output.add("li %v0 11");
+		output.add("syscall");*/
 		return output;
 	}
 
@@ -98,12 +117,47 @@ public class BasicCodeGenerator {
 		}
 		return output;
 	}
-	
-	private int getCaseNumber(ParseTree pt){
+	/**
+	 * Give number type for type of pt tree give
+	 * @param pt
+	 * @return -1 unknown, 0 statement list, 1 statement
+	 * 2 oE, 3 oEP, 4 aE, 5 aEP, 6, cE, 7 cEP, 8 eQE, 9 aSE, 10 aSEP, 11 mDE, 12 mDEP, 13 nE, 14 dE, 15 dEP, 16 hPE
+	 */
+	public static int getCaseNumber(ParseTree pt){
 		if(pt instanceof MiniJavaParser.StmtListContext){
 			return 0;
 		}else if(pt instanceof MiniJavaParser.StmtContext){
 			return 1;
+		}else if(pt instanceof MiniJavaParser.OEContext){
+			return 2;
+		}else if(pt instanceof MiniJavaParser.OEPContext){
+			return 3;
+		}else if(pt instanceof MiniJavaParser.AEContext){
+			return 4;
+		}else if(pt instanceof MiniJavaParser.AEPContext){
+			return 5;
+		}else if(pt instanceof MiniJavaParser.CEContext){
+			return 6;
+		}else if(pt instanceof MiniJavaParser.CEPContext){
+			return 7;
+		}else if(pt instanceof MiniJavaParser.EQEContext){
+			return 8;
+		}else if(pt instanceof MiniJavaParser.ASEContext){
+			return 9;
+		}else if(pt instanceof MiniJavaParser.ASEPContext){
+			return 10;
+		}else if(pt instanceof MiniJavaParser.MDEContext){
+			return 11;
+		}else if(pt instanceof MiniJavaParser.MDEPContext){
+			return 12;
+		}else if(pt instanceof MiniJavaParser.NEContext){
+			return 13;
+		}else if(pt instanceof MiniJavaParser.DEContext){
+			return 14;
+		}else if(pt instanceof MiniJavaParser.DEPContext){
+			return 15;
+		}else if(pt instanceof MiniJavaParser.HPEContext){
+			return 16;
 		}else if(pt.getPayload() instanceof Token){
 			return 17;
 		}

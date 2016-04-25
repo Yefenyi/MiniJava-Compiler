@@ -7,7 +7,7 @@ public class Register {
 	String type;
 	int number;
 	boolean neededValue;//TODO Update neededValue based on data graph
-	ParseTree represents;
+	String represents;
 	
 	public Register(String type, int number){
 		this.type = type;
@@ -21,12 +21,12 @@ public class Register {
 		}
 		return "$"+this.type + String.valueOf(number);
 	}
-	public void setTree(ParseTree pt){
+	public void setTree(String exp){
 		if(this.isZeroReg()) return;
-		this.represents = pt;
+		this.represents = exp;
 	}
-	public boolean sameTree(ParseTree pt){
-		return pt.equals(this.represents);
+	public boolean sameTree(String exp){
+		return exp.equals(this.represents);
 		//TODO a better version of this
 	}
 	private boolean isZeroReg(){

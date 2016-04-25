@@ -7,17 +7,17 @@ import org.antlr.v4.runtime.tree.ParseTree;
 
 
 public class RegisterHandler {
-	List<Register> regs;
-	Register zero = new Register("zero",0);
-	int currentReg = 0;
+	private List<Register> regs;
+	private Register zero = new Register("zero",0);
+	private int nextReg = 0;
 	public RegisterHandler(){
 		regs=new ArrayList<Register>();
 		for(int i=0;i<100;i++){
-			regs.add(new Register("t",0));
+			regs.add(new Register("t",i));
 		}
 	}
 	
-	public Register getAssignment(ParseTree pt){
+	public Register getAssignment(String pt){
 		for(Register reg : regs){
 			if(reg.sameTree(pt)){
 				return reg;
@@ -26,11 +26,20 @@ public class RegisterHandler {
 		return zero;
 	}
 	
-	public List<String> setAssignment(ParseTree pt){
-		regs.get(currentReg).setTree(pt);
-		currentReg++;
+	public List<String> setAssignment(String pt){
+		regs.get(nextReg).setTree(pt);
+		nextReg++;
 		//Return list is for if any memory management instructions has to be done to save reg values
 		return null;
+	}
+	public void replaceLast(String pt){
+		if(nextReg!=0){
+			regs.get(nextReg-1).setTree(pt);
+		}
+	}
+	
+	public Register getNextReg(){
+		return regs.get(nextReg);
 	}
 
 }

@@ -29,8 +29,9 @@ import antlr4.MiniJavaParser;
 public class CodeGeneratorDriver {
 
 	public static void main(String[] args) {
-		String fileName = "testcase00_17";
-		String in = "input_output/FullCodeGeneratorFullTests/" + fileName + ".java";
+		String fileName = "input2";
+		//TODO we crash we given a blank file
+		String in = "input_output/input2.txt";
 		GenericDriver driver = new GenericDriver(in);
 		List<String> list = driver.genBasicOutput();
 		for(String item:list){
