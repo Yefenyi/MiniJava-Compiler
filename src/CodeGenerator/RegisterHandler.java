@@ -27,8 +27,12 @@ public class RegisterHandler {
 	}
 	
 	public List<String> setAssignment(String pt){
-		regs.get(nextReg).setTree(pt);
-		nextReg++;
+		if(getAssignment(pt)==zero){
+			//System.out.print("Assigning: "+pt+" to:");
+			//System.out.println(nextReg);
+			regs.get(nextReg).setTree(pt);
+			nextReg++;
+		}
 		//Return list is for if any memory management instructions has to be done to save reg values
 		return null;
 	}

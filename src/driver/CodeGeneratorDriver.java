@@ -34,6 +34,7 @@ public class CodeGeneratorDriver {
 		String in = "input_output/input2.txt";
 		GenericDriver driver = new GenericDriver(in);
 		List<String> list = driver.genBasicOutput();
+		System.out.println("=====Program Start=====\n");
 		for(String item:list){
 			System.out.println(item);
 		}

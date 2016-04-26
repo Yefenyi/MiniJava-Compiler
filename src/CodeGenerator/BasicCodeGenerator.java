@@ -72,16 +72,22 @@ public class BasicCodeGenerator {
 					break;
 			case 9: if(debug) System.out.println("Add or Sub "+pt.getText());
 					output.addAll(this.walkTree(pt.getChild(0)));
-					
+					output.addAll(this.walkTree(pt.getChild(1)));
 					break;
 			case 10:if(debug) System.out.println("Add or Sub Prime"+pt.getText());
 					output.addAll(this.walkTree(pt.getChild(1)));
+					String parentString = this.getParentsNonPrime(pt.getParent());
+					if(pt.getChild(0).getText().equals("+")){
+						output.add("add "+regs.getNextReg()+", "+regs.getAssignment(parentString)+", "+regs.getAssignment(pt.getChild(1).getText()));
+					}else{
+						output.add("sub "+regs.getNextReg()+", "+regs.getAssignment(parentString)+", "+regs.getAssignment(pt.getChild(1).getText()));
+					}
+					regs.setAssignment(parentString+pt.getChild(0).getText()+pt.getChild(1).getText());
 					if(pt.getChild(2).getChildCount()!=0){
 						output.addAll(this.walkTree(pt.getChild(2)));
-						//TODO
-					}else{
-						//regs.replaceLast(pt);
 					}
+					break;
+			case 11:if(debug) System.out.println("Multiply or devide "+pt.getText());
 					break;
 			case 17:if(debug) System.out.println("Token "+pt.getText());
 					if(((Token) pt.getPayload()).getType() == MiniJavaLexer.INTEGER){
@@ -95,7 +101,16 @@ public class BasicCodeGenerator {
 		}
 		return output;
 	}
-	
+
+	private String getParentsNonPrime(ParseTree pt) {
+		int type = this.getCaseNumber(pt);
+		if(type==2||type==4||type==6||type==8||type==9||type==11||type==13||type==14){
+			return pt.getChild(0).getText();
+		}else{
+			return this.getParentsNonPrime(pt.getParent())+pt.getChild(0).getText()+pt.getChild(1).getText();
+		}
+	}
+
 	private List<String> SystemPrintFunction(Register reg){
 		List<String> output = new ArrayList<String>();
 		output.add("li $v0, 1");
