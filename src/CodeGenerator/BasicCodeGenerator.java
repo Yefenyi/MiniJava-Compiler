@@ -87,7 +87,24 @@ public class BasicCodeGenerator {
 						output.addAll(this.walkTree(pt.getChild(2)));
 					}
 					break;
-			case 11:if(debug) System.out.println("Multiply or devide "+pt.getText());
+			case 11:if(debug) System.out.println("Multiply or divide "+pt.getText());
+					output.addAll(this.walkTree(pt.getChild(0)));
+					output.addAll(this.walkTree(pt.getChild(1)));
+					break;
+			case 12:if(debug) System.out.println("Multiply or divide Prime");
+					output.addAll(this.walkTree(pt.getChild(1)));
+					parentString = this.getParentsNonPrime(pt.getParent());
+					if(pt.getChild(0).getText().equals("*")){
+						output.add("mult "+regs.getNextReg()+", "+regs.getAssignment(parentString)+", "+regs.getAssignment(pt.getChild(1).getText()));
+					}else{
+						output.add("div "+regs.getNextReg()+", "+regs.getAssignment(parentString)+", "+regs.getAssignment(pt.getChild(1).getText()));
+					}
+					regs.setAssignment(parentString+pt.getChild(0).getText()+pt.getChild(1).getText());
+					if(pt.getChild(2).getChildCount()!=0){
+						output.addAll(this.walkTree(pt.getChild(2)));
+					}
+					break;
+			case 16:if(debug) System.out.println("HPE: "+pt.getText());
 					break;
 			case 17:if(debug) System.out.println("Token "+pt.getText());
 					if(((Token) pt.getPayload()).getType() == MiniJavaLexer.INTEGER){
@@ -116,9 +133,9 @@ public class BasicCodeGenerator {
 		output.add("li $v0, 1");
 		output.add("add $a0, "+reg.toString()+", $zero");
 		output.add("syscall");
-		/*output.add("li $a0 10");
-		output.add("li %v0 11");
-		output.add("syscall");*/
+		output.add("li $a0 10");
+		output.add("li $v0 11");
+		output.add("syscall");
 		return output;
 	}
 
