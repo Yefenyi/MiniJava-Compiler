@@ -64,7 +64,8 @@ public class BasicCodeGenerator {
 							output.addAll(this.walkTree(pt.getChild(2)));
 							output.addAll(this.SystemPrintFunction(this.regs.getAssignment(pt.getChild(2).getText())));
 						}
-						
+					} else if(pt.getChildCount()==3){
+						output.addAll(this.walkTree(pt.getChild(1)));
 					}
 					break;
 			case 2: //cases 2 to 16 are for different possible expressions
@@ -95,16 +96,21 @@ public class BasicCodeGenerator {
 					output.addAll(this.walkTree(pt.getChild(1)));
 					parentString = this.getParentsNonPrime(pt.getParent());
 					if(pt.getChild(0).getText().equals("*")){
-						output.add("mult "+regs.getNextReg()+", "+regs.getAssignment(parentString)+", "+regs.getAssignment(pt.getChild(1).getText()));
+						output.add("mult "+regs.getAssignment(parentString)+", "+regs.getAssignment(pt.getChild(1).getText()));
 					}else{
-						output.add("div "+regs.getNextReg()+", "+regs.getAssignment(parentString)+", "+regs.getAssignment(pt.getChild(1).getText()));
+						output.add("div "+regs.getAssignment(parentString)+", "+regs.getAssignment(pt.getChild(1).getText()));
 					}
+					output.add("mflo "+regs.getNextReg());
 					regs.setAssignment(parentString+pt.getChild(0).getText()+pt.getChild(1).getText());
 					if(pt.getChild(2).getChildCount()!=0){
 						output.addAll(this.walkTree(pt.getChild(2)));
 					}
 					break;
 			case 16:if(debug) System.out.println("HPE: "+pt.getText());
+					if(pt.getChildCount()==3){// ( pt )
+						output.addAll(this.walkTree(pt.getChild(1)));
+						regs.replaceLast(pt.getText());
+					}
 					break;
 			case 17:if(debug) System.out.println("Token "+pt.getText());
 					if(((Token) pt.getPayload()).getType() == MiniJavaLexer.INTEGER){

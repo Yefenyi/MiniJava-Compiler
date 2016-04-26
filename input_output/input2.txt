@@ -1,7 +1,7 @@
 /** This is input test 2 */
 class Test2 {
 	public static void main (String[] args) {
-		System.out.println(2*(3+4));
+		System.out.println((2*5)/(7/(3+4)));
 	}
 }
 /*class foo {
