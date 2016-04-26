@@ -74,7 +74,7 @@ public class FullCodeGeneratorTest {
 			br = new BufferedReader(new FileReader(fileIn));
 			while(true) {
 				String nextLine = br.readLine();
-				if(nextLine == null) {
+				if(nextLine == null || nextLine.equals("")) {
 					break;
 				}
 				expected.add(nextLine);
@@ -93,8 +93,8 @@ public class FullCodeGeneratorTest {
 //		generatedASM.add("li $v0, 1");
 //		generatedASM.add("li $a0, 2");
 //		generatedASM.add("syscall");
-		String asmFileName = "testAsmOut.asm";
-		String asmOutputName = "asmFileOutput.out_gen";
+		String asmFileName = "testAsmOut" + this.filePrefix + ".asm";
+		String asmOutputName = "asmFileOutput" + this.filePrefix + ".out_gen";
 		File fileOut = new File(asmFileName);
 		try {
 			BufferedWriter bw = new BufferedWriter(new FileWriter(fileOut));
@@ -110,6 +110,7 @@ public class FullCodeGeneratorTest {
 		runSimulatorForOutput(asmFileName, asmOutputName);
 		List<String> result = readFile(asmOutputName);
 		List<String> expected = readFile("./input_output/FullCodeGeneratorFullTests/" + this.filePrefix + ".out");
+		System.out.println(expected.size());
 		assertTrue(this.filePrefix, result.size() == expected.size());
 		for(int i = 0 ; i < result.size(); ++i) {
 			assertTrue(this.filePrefix, result.get(i).equals(expected.get(i)));
