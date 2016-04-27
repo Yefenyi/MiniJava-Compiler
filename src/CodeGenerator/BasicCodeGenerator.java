@@ -1,6 +1,7 @@
 package CodeGenerator;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,7 +18,7 @@ public class BasicCodeGenerator {
 	private Map<String,ParsedClass> parsedClassMap;
 	private Map<String,GeneratedClass> genClassMap = new HashMap<String,GeneratedClass>();
 	private RegisterHandler regs;
-	private int freeReg =0;
+	private int labelNumber =0;
 	boolean debug = true;
 	
 	public BasicCodeGenerator(Map<String,ParsedClass> map){
@@ -50,26 +51,51 @@ public class BasicCodeGenerator {
 	}
 	private List<String> walkTree(ParseTree pt){
 		List<String> output = new ArrayList<String>();
-		switch(this.getCaseNumber(pt)){
-			case 0: if(debug) System.out.println("stmtList : "+ pt.getText());
-					//TODO environment stuff 
+		switch(BasicCodeGenerator.getCaseNumber(pt)){
+			case 0: if(debug) System.out.println("stmtList: "+ pt.getText());
+					output.add("#enter enviroment");
 					for(ParseTree child: ((MiniJavaParser.StmtListContext) pt).children){
 						output.addAll(this.walkTree(child));
 					}
+					output.add("#exit enviroment");
 					break;
-			case 1: if(debug) System.out.println("stmt :" + pt.getText());
-					if(pt.getChildCount()==5){
-						//could be a while, print, or deceleration
-						if(true){//TODO change to check System print
-							output.addAll(this.walkTree(pt.getChild(2)));
-							output.addAll(this.SystemPrintFunction(this.regs.getAssignment(pt.getChild(2).getText())));
-						}
-					} else if(pt.getChildCount()==3){
-						output.addAll(this.walkTree(pt.getChild(1)));
-					}
+			case 1: if(debug) System.out.println("stmt: " + pt.getText());
+					output.addAll(this.getStmtString(pt));
+					
 					break;
 			case 2: //cases 2 to 16 are for different possible expressions
 					//TODO 
+					break;
+			case 6: if(debug) System.out.println("Comparison Expresion: "+pt.getText());
+					output.addAll(this.walkTree(pt.getChild(0)));
+					output.addAll(this.walkTree(pt.getChild(1)));
+					break;
+			case 7: if(debug) System.out.println("Comparison Expresion Prime: "+pt.getText());
+					output.addAll(this.walkTree(pt.getChild(1)));
+					String parent = this.getParentsNonPrime(pt.getParent());
+					if(pt.getChild(0).getText().equals("<")){
+						output.add("slt "+regs.getNextReg()+", "+regs.getAssignment(parent)+", "+regs.getAssignment(pt.getChild(1).getText()));
+					} else if(pt.getChild(0).getText().equals("<=")){
+						output.add("sge "+regs.getNextReg()+", "+regs.getAssignment(pt.getChild(1).getText())+", "+regs.getAssignment(parent));
+					}else if(pt.getChild(0).getText().equals(">")){
+						output.add("sgt "+regs.getNextReg()+", "+regs.getAssignment(parent)+", "+regs.getAssignment(pt.getChild(1).getText()));
+					}else{
+						output.add("sge "+regs.getNextReg()+", "+regs.getAssignment(parent)+", "+regs.getAssignment(pt.getChild(1).getText()));
+					}
+					regs.setAssignment(parent+pt.getChild(0).getText()+pt.getChild(1).getText());
+					break;
+			case 8: if(debug) System.out.println("Comparision: "+pt.getText());
+					output.addAll(this.walkTree(pt.getChild(0)));
+					output.addAll(this.walkTree(pt.getChild(2)));
+					String command = "";
+					if(pt.getChild(1).getText().equals("==")){
+						command = "seq ";
+					}else{
+						command = "snq ";
+					}
+					command += regs.getNextReg() +", "+regs.getAssignment(pt.getChild(0).getText())+", "+regs.getAssignment(pt.getChild(2).getText());
+					output.add(command);
+					regs.setAssignment(pt.getText());
 					break;
 			case 9: if(debug) System.out.println("Add or Sub "+pt.getText());
 					output.addAll(this.walkTree(pt.getChild(0)));
@@ -106,27 +132,80 @@ public class BasicCodeGenerator {
 						output.addAll(this.walkTree(pt.getChild(2)));
 					}
 					break;
+			case 13:if(debug) System.out.println("Not expression");
+					break;
 			case 16:if(debug) System.out.println("HPE: "+pt.getText());
 					if(pt.getChildCount()==3){// ( pt )
 						output.addAll(this.walkTree(pt.getChild(1)));
 						regs.replaceLast(pt.getText());
+					}else if(pt.getChildCount()==4){
+						// new id()
+						//TODO
+					}else{
+						//TODO
 					}
 					break;
 			case 17:if(debug) System.out.println("Token "+pt.getText());
 					if(((Token) pt.getPayload()).getType() == MiniJavaLexer.INTEGER){
 						this.regs.setAssignment(pt.getText());
 						output.add("li "+this.regs.getAssignment(pt.getText())+", "+pt.getText());
+					}else if(((Token) pt.getPayload()).getType()==MiniJavaLexer.ID){
+						//Pass variable should be in register already
 					}
 					break;
 			default:if(debug) System.out.println("unidentifed case: "+pt.getText());
-					if(debug) System.out.println("case number: "+String.valueOf(this.getCaseNumber(pt)));
+					if(debug) System.out.println("case number: "+String.valueOf(BasicCodeGenerator.getCaseNumber(pt)));
 					break;
 		}
 		return output;
 	}
 
+	private List<String> getStmtString(ParseTree pt) {
+		List<String> output = new ArrayList<String>();
+		if(pt.getChildCount()==5){
+			//could be a while, print, or deceleration
+			if(pt.getChild(0).getText().equals("System.out.println")){ //system print
+				output.addAll(this.walkTree(pt.getChild(2)));
+				output.addAll(this.SystemPrintFunction(this.regs.getAssignment(pt.getChild(2).getText())));
+			}else if(pt.getChild(2).getText().equals("=")){ //New variable def
+				output.addAll(this.walkTree(pt.getChild(3)));
+				output.add("#create #"+pt.getChild(0).getText()+" #"+pt.getChild(1).getText());
+				regs.setAssignment(pt.getChild(1).getText());
+				output.add("add "+regs.getAssignment(pt.getChild(1).getText())+", "+regs.getAssignment(pt.getChild(3).getText())+", $zero");
+			}else if(pt.getChild(0).getText().equals("while")){
+				//Start of loop
+				int start =this.labelNumber;
+				int end =this.labelNumber+1;
+				this.labelNumber += 2;
+				output.add("L"+String.valueOf(start)+":    nop");
+				output.addAll(this.walkTree(pt.getChild(2)));//Check expression
+				output.add("beq $zero, "+regs.getAssignment(pt.getChild(2).getText()) + ", L"+String.valueOf(end)  );//Branch to end if false
+				output.addAll(this.walkTree(pt.getChild(4)));// loop body
+				output.add("J "+"L"+String.valueOf(start));
+				output.add("L"+String.valueOf(end)+":    nop"); //Exit location
+			}
+		} else if(pt.getChildCount()==3){
+			output.addAll(this.walkTree(pt.getChild(1)));
+		} else if(pt.getChildCount()==4){
+			output.add("#varriable assignment");
+			output.addAll(this.walkTree(pt.getChild(2)));
+			output.add("add "+regs.getAssignment(pt.getChild(0).getText())+", " + regs.getAssignment(pt.getChild(2).getText())+", $zero");
+		} else{
+			int elsePoint = this.labelNumber++;
+			int end = this.labelNumber++;
+			output.addAll(this.walkTree(pt.getChild(2)));	//check
+			output.add("beq $zero, "+regs.getAssignment(pt.getChild(2).getText()) + ", L"+String.valueOf(elsePoint)  );//Branch to else if false
+			output.addAll(this.walkTree(pt.getChild(4)));	//body 1 
+			output.add("J L"+String.valueOf(end));			//jump end
+			output.add("L"+String.valueOf(elsePoint)+":    nop");
+			output.addAll(this.walkTree(pt.getChild(6)));	//body 2 
+			output.add("L"+String.valueOf(end)+":    nop"); //end
+		}
+		return output;
+	}
+
 	private String getParentsNonPrime(ParseTree pt) {
-		int type = this.getCaseNumber(pt);
+		int type = BasicCodeGenerator.getCaseNumber(pt);
 		if(type==2||type==4||type==6||type==8||type==9||type==11||type==13||type==14){
 			return pt.getChild(0).getText();
 		}else{
