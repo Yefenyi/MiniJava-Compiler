@@ -1,0 +1,9 @@
+Our compiler is targeting the MIPS architecture, in part because we both have used the hardware before. 
+The simulator we are using is the MARS MIPS simulator. Its a very nice simulator that can be found in 
+the MiniJavaCompiler project as mars.jar. This is simulator is has about 155 psudeo instrunctions and 
+and about 20 syscalls that can be called like functions, which is how we implement system print 
+
+Our code is in src/driver codeGneratorDriver.java
+it prints out the list of instructions in the console that can be directly used in the simulator
+
+currently we can only do small programs that only use main right now

@@ -3,7 +3,7 @@ class Test2 {
 	public static void main (String[] args) {
 		int i =0;
 		while(i<10){
-			if(i/2==1){
+			if(true||i==1){
 				System.out.println(100);
 			}else{
 				System.out.println(i);

@@ -133,6 +133,7 @@ public class BasicCodeGenerator {
 					}
 					break;
 			case 13:if(debug) System.out.println("Not expression");
+					//TODO
 					break;
 			case 16:if(debug) System.out.println("HPE: "+pt.getText());
 					if(pt.getChildCount()==3){// ( pt )
@@ -142,7 +143,7 @@ public class BasicCodeGenerator {
 						// new id()
 						//TODO
 					}else{
-						//TODO
+						System.out.println("shouldn't get called says alvin...");
 					}
 					break;
 			case 17:if(debug) System.out.println("Token "+pt.getText());
@@ -151,6 +152,8 @@ public class BasicCodeGenerator {
 						output.add("li "+this.regs.getAssignment(pt.getText())+", "+pt.getText());
 					}else if(((Token) pt.getPayload()).getType()==MiniJavaLexer.ID){
 						//Pass variable should be in register already
+					}else{
+						//TODO
 					}
 					break;
 			default:if(debug) System.out.println("unidentifed case: "+pt.getText());
