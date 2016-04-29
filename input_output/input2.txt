@@ -1,14 +1,10 @@
 /** This is input test 2 */
 class Test2 {
 	public static void main (String[] args) {
-		int i =0;
-		while(i<10){
-			if(true||i==1){
-				System.out.println(100);
-			}else{
-				System.out.println(i);
-			}
-			i= i+1;
+		if(true && true){
+			System.out.println(10);
+		}else{
+			System.out.println(-10);
 		}
 	}
 }

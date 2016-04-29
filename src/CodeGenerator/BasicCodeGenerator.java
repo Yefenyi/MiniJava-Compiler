@@ -54,17 +54,35 @@ public class BasicCodeGenerator {
 		switch(BasicCodeGenerator.getCaseNumber(pt)){
 			case 0: if(debug) System.out.println("stmtList: "+ pt.getText());
 					output.add("#enter enviroment");
-					for(ParseTree child: ((MiniJavaParser.StmtListContext) pt).children){
-						output.addAll(this.walkTree(child));
+					if(pt.getChildCount()!=0){
+						for(ParseTree child: ((MiniJavaParser.StmtListContext) pt).children){
+							output.addAll(this.walkTree(child));
+						}
 					}
 					output.add("#exit enviroment");
 					break;
 			case 1: if(debug) System.out.println("stmt: " + pt.getText());
 					output.addAll(this.getStmtString(pt));
-					
 					break;
-			case 2: //cases 2 to 16 are for different possible expressions
-					//TODO 
+			case 2: if(debug) System.out.println("Or: "+pt.getText());
+					output.addAll(this.walkTree(pt.getChild(0)));
+					output.addAll(this.walkTree(pt.getChild(1)));
+					break;
+			case 3: if(debug) System.out.println("Or Prime: "+pt.getText());
+					output.addAll(this.walkTree(pt.getChild(1)));
+					String parent = this.getParentsNonPrime(pt.getParent());
+					output.add("or "+regs.getNextReg()+", "+regs.getAssignment(parent)+", "+regs.getAssignment(pt.getChild(1).getText()));
+					regs.setAssignment(parent+pt.getChild(0).getText()+pt.getChild(1).getText());
+					break;
+			case 4: if(debug) System.out.println("And:"+pt.getText());
+					output.addAll(this.walkTree(pt.getChild(0)));
+					output.addAll(this.walkTree(pt.getChild(1)));
+					break;
+			case 5: if(debug) System.out.println("And Prime: "+pt.getText());
+					output.addAll(this.walkTree(pt.getChild(1)));
+					parent = this.getParentsNonPrime(pt.getParent());
+					output.add("and "+regs.getNextReg()+", "+regs.getAssignment(parent)+", "+regs.getAssignment(pt.getChild(1).getText()));
+					regs.setAssignment(parent+pt.getChild(0).getText()+pt.getChild(1).getText());
 					break;
 			case 6: if(debug) System.out.println("Comparison Expresion: "+pt.getText());
 					output.addAll(this.walkTree(pt.getChild(0)));
@@ -72,7 +90,7 @@ public class BasicCodeGenerator {
 					break;
 			case 7: if(debug) System.out.println("Comparison Expresion Prime: "+pt.getText());
 					output.addAll(this.walkTree(pt.getChild(1)));
-					String parent = this.getParentsNonPrime(pt.getParent());
+					parent = this.getParentsNonPrime(pt.getParent());
 					if(pt.getChild(0).getText().equals("<")){
 						output.add("slt "+regs.getNextReg()+", "+regs.getAssignment(parent)+", "+regs.getAssignment(pt.getChild(1).getText()));
 					} else if(pt.getChild(0).getText().equals("<=")){
@@ -97,11 +115,11 @@ public class BasicCodeGenerator {
 					output.add(command);
 					regs.setAssignment(pt.getText());
 					break;
-			case 9: if(debug) System.out.println("Add or Sub "+pt.getText());
+			case 9: if(debug) System.out.println("Add or Sub: "+pt.getText());
 					output.addAll(this.walkTree(pt.getChild(0)));
 					output.addAll(this.walkTree(pt.getChild(1)));
 					break;
-			case 10:if(debug) System.out.println("Add or Sub Prime"+pt.getText());
+			case 10:if(debug) System.out.println("Add or Sub Prime: "+pt.getText());
 					output.addAll(this.walkTree(pt.getChild(1)));
 					String parentString = this.getParentsNonPrime(pt.getParent());
 					if(pt.getChild(0).getText().equals("+")){
@@ -114,11 +132,11 @@ public class BasicCodeGenerator {
 						output.addAll(this.walkTree(pt.getChild(2)));
 					}
 					break;
-			case 11:if(debug) System.out.println("Multiply or divide "+pt.getText());
+			case 11:if(debug) System.out.println("Multiply or divide: "+pt.getText());
 					output.addAll(this.walkTree(pt.getChild(0)));
 					output.addAll(this.walkTree(pt.getChild(1)));
 					break;
-			case 12:if(debug) System.out.println("Multiply or divide Prime");
+			case 12:if(debug) System.out.println("Multiply or divide Prime: "+pt.getText());
 					output.addAll(this.walkTree(pt.getChild(1)));
 					parentString = this.getParentsNonPrime(pt.getParent());
 					if(pt.getChild(0).getText().equals("*")){
@@ -132,9 +150,18 @@ public class BasicCodeGenerator {
 						output.addAll(this.walkTree(pt.getChild(2)));
 					}
 					break;
-			case 13:if(debug) System.out.println("Not expression");
-					//TODO
+			case 13:if(debug) System.out.println("Not expression: "+pt.getText());
+					output.addAll(this.walkTree(pt.getChild(1)));
+					Register exp = regs.getAssignment(pt.getChild(1).getText());
+					if(pt.getChild(0).getText().equals("!")){
+						output.add("xori "+ exp +", "+exp+", 1");
+					}else{
+						output.add("sub "+exp+", $zero"+", "+exp);
+					}
+					exp.setTree(pt.getText());
 					break;
+			case 14: break;//TODO
+			case 15: break;//TODO
 			case 16:if(debug) System.out.println("HPE: "+pt.getText());
 					if(pt.getChildCount()==3){// ( pt )
 						output.addAll(this.walkTree(pt.getChild(1)));
@@ -146,12 +173,18 @@ public class BasicCodeGenerator {
 						System.out.println("shouldn't get called says alvin...");
 					}
 					break;
-			case 17:if(debug) System.out.println("Token "+pt.getText());
+			case 17:if(debug) System.out.println("Token: "+pt.getText());
 					if(((Token) pt.getPayload()).getType() == MiniJavaLexer.INTEGER){
 						this.regs.setAssignment(pt.getText());
 						output.add("li "+this.regs.getAssignment(pt.getText())+", "+pt.getText());
 					}else if(((Token) pt.getPayload()).getType()==MiniJavaLexer.ID){
-						//Pass variable should be in register already
+						//Pass, variable should be in register already
+					}else if(((Token) pt.getPayload()).getType()==MiniJavaLexer.FALSE){
+						this.regs.setAssignment("false");
+						output.add("li "+this.regs.getAssignment(pt.getText())+", 0");
+					}else if(((Token) pt.getPayload()).getType()==MiniJavaLexer.TRUE){
+						this.regs.setAssignment("true");
+						output.add("li "+this.regs.getAssignment(pt.getText())+", 1");
 					}else{
 						//TODO
 					}
