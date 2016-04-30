@@ -1,15 +1,27 @@
-/** This is input test 2 */
+/** This is input test 2 **/
 class Test2 {
 	public static void main (String[] args) {
-		if(true && true){
-			System.out.println(10);
-		}else{
-			System.out.println(-10);
-		}
+		foo a = new foo();
+		System.out.println(a.number());
 	}
 }
-/*class foo {
-	public int bar(){
+class foo {
+	int num;
+/*	public int set(){
+		num = 3;
 		return 0;
+	}*/
+	public int number(int b){
+		int a =10;
+		return a;
+	}
+/*	public int method3(){
+		return 1;
+	}*/
+}
+/*
+class bar extends foo {
+	public int number(){
+		return 5;
 	}
 }*/

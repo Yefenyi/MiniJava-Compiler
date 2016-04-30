@@ -78,7 +78,7 @@ public class GenericDriver {
 		
 		BasicCodeGenerator gen = new BasicCodeGenerator(listener3.getMap());
 		
-		gen.generate(); 
+		//gen.generate(); 
 		return gen.getProgram();
 	}
 }

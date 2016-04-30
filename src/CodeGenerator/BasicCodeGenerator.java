@@ -10,6 +10,7 @@ import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import parser.ParsedClass;
+import parser.ParsedMainClass;
 import parser.ParsedMethod;
 import antlr4.MiniJavaLexer;
 import antlr4.MiniJavaParser;
@@ -18,33 +19,67 @@ public class BasicCodeGenerator {
 	private Map<String,ParsedClass> parsedClassMap;
 	private Map<String,GeneratedClass> genClassMap = new HashMap<String,GeneratedClass>();
 	private RegisterHandler regs;
+	private String main;
 	private int labelNumber =0;
+	private int methodNumber = 0;
 	boolean debug = true;
 	
 	public BasicCodeGenerator(Map<String,ParsedClass> map){
 		this.parsedClassMap = map;
 		this.regs=new RegisterHandler();
+		this.generate();
 	}
 
-	public Map<String,GeneratedClass> generate(){
+	private Map<String,GeneratedClass> generate(){
+		int start =0;
 		for(String key: parsedClassMap.keySet()){
-			this.createGenClass(parsedClassMap.get(key));
+			ParsedClass parsedClass = parsedClassMap.get(key);
+			if(parsedClass instanceof ParsedMainClass){
+				main = parsedClass.getName();
+			}
+			GeneratedClass c =this.createGenClass(parsedClass,start);
+			start = c.classNumber +c.methodMap.size();
 		}
 		return null;
 	}
 
-	private void createGenClass(ParsedClass parsedClass) {
+	private GeneratedClass createGenClass(ParsedClass parsedClass, int classNumber) {
 		GeneratedClass genClass = new GeneratedClass(parsedClass.getName());
+		genClass.classNumber = classNumber;
 		Map<String,GeneratedMethod> methodMap = new HashMap<String,GeneratedMethod>();
 		genClass.setFieldMap(parsedClass.getNameToField());
+		int start =classNumber;
 		for(String key: parsedClass.getNameToMethod().keySet()){
-			methodMap.put(key,this.createGenMethod(parsedClass.getNameToMethod().get(key)));
+			GeneratedMethod  method  = this.createGenMethod(parsedClass.getNameToMethod().get(key));
+			regs.reset();
+			method.methodNumber = start++;
+			methodMap.put(key,method);
 		}
 		genClass.setMethodMap(methodMap);
 		this.genClassMap.put(genClass.name,genClass);
+		return genClass;
 	}
 	
-	//TODO return statement is not part of the parsedMethod tree need to go back and add it
+	private List<String> initClasses(){
+		//Store each class in the $gp with first method stored pc jump
+		List<String> output = new ArrayList<String>();
+		List<String> postJump = new ArrayList<String>();
+		output.add("jal setup");
+		output.add("setup: move $t0 $ra");
+		output.add("j endClass");
+		for(String key : this.parsedClassMap.keySet()){
+			GeneratedClass c = this.genClassMap.get(key);
+			for(String method : c.methodMap.keySet()){
+				output.add("j m"+String.valueOf(c.methodMap.get(method).methodNumber));
+			}
+			postJump.add("sw $t0, "+String.valueOf(c.classNumber*4)+"($gp)");
+			postJump.add("addi $t0, $t0, "+String.valueOf(4*c.methodMap.size()));
+		}
+		output.add("endClass: addi $t0, $t0, 8");
+		output.addAll(postJump);
+		return output;
+	}
+	
 	private GeneratedMethod createGenMethod(ParsedMethod parsedMethod) {
 		ParseTree pt = parsedMethod.getTree();
 		return new GeneratedMethod(parsedMethod.getName(),this.walkTree(pt));
@@ -160,15 +195,39 @@ public class BasicCodeGenerator {
 					}
 					exp.setTree(pt.getText());
 					break;
-			case 14: break;//TODO
-			case 15: break;//TODO
+			case 14:if(debug) System.out.println("Function call: "+pt.getText());
+					output.addAll(this.walkTree(pt.getChild(0)));
+					output.addAll(this.walkTree(pt.getChild(1)));
+					break;
+			case 15:if(debug) System.out.println("Function call prime: "+pt.getText());
+					String parrent = this.getParentsNonPrime(pt.getParent());
+					Register pointer = regs.getAssignment(parrent);
+					System.out.println(pointer+" "+pointer.represents);
+					
+					//TODO
+					output.add("lw "+regs.getNextReg() + " 0("+pointer+")");
+					output.add("addi "+regs.getNextReg()+", "+regs.getNextReg()  + ", "+String.valueOf(this.getMethod(pt.getChild(1).getText())));
+					output.add("#preCall");
+					output.add("jalr "+regs.getNextReg());
+					output.add("#postCall");
+					output.add("move "+regs.getNextReg()+", $v0");
+					regs.setAssignment(parrent+pt.getText());
+					break;
 			case 16:if(debug) System.out.println("HPE: "+pt.getText());
 					if(pt.getChildCount()==3){// ( pt )
 						output.addAll(this.walkTree(pt.getChild(1)));
 						regs.replaceLast(pt.getText());
 					}else if(pt.getChildCount()==4){
 						// new id()
-						//TODO
+						String genClass = pt.getChild(1).getText();
+						output.add("#allocate a "+genClass);
+						output.add("li $v0, 9");
+						output.add("li $a0, "+String.valueOf(this.getSize(genClass)));
+						output.add("syscall");
+						output.add("lw "+regs.getNextReg()+", "+String.valueOf(this.getMemory(genClass)+"($gp)"));
+						output.add("sw "+regs.getNextReg()+", 0($v0)");//$v0 is the pointer
+						output.add("move "+regs.getNextReg()+", $v0");
+						regs.setAssignment(pt.getText());
 					}else{
 						System.out.println("shouldn't get called says alvin...");
 					}
@@ -189,11 +248,37 @@ public class BasicCodeGenerator {
 						//TODO
 					}
 					break;
+			case 18:if(debug) System.out.println("Method: "+pt.getText());
+					//TODO might be all thats needed
+					//TODO arguments need to be handled somewhere
+					int index =0;
+					for(;!(pt.getChild(index)instanceof MiniJavaParser.StmtListContext);index++);
+					output.addAll(this.walkTree(pt.getChild(index)));
+					output.addAll(this.walkTree(pt.getChild(index+2)));
+					output.add("move $v0 ,"+regs.getAssignment(pt.getChild(index+2).getText()));
+					output.add("jr $ra");
+					break;
 			default:if(debug) System.out.println("unidentifed case: "+pt.getText());
 					if(debug) System.out.println("case number: "+String.valueOf(BasicCodeGenerator.getCaseNumber(pt)));
 					break;
 		}
 		return output;
+	}
+
+	private int getMethod(String text) {
+		// TODO 
+		System.out.println(text);
+		return 0;
+	}
+
+	private int getSize(String genClass) {
+		// TODO get the size of the class and field variables
+		// TODO maybe include garbage collection
+		return 1*4;
+	}
+
+	private int getMemory(String genClass) {
+		return genClassMap.get(genClass).classNumber*4;
 	}
 
 	private List<String> getStmtString(ParseTree pt) {
@@ -262,9 +347,12 @@ public class BasicCodeGenerator {
 
 	public List<String> getProgram() {
 		List<String> output = new ArrayList<String>();
+		output.addAll(this.initClasses());
+		output.add("j m"+String.valueOf(this.genClassMap.get(main).classNumber));
 		for(String key : this.parsedClassMap.keySet()){
 			GeneratedClass genClass= this.genClassMap.get(key);
 			for(String method : genClass.methodMap.keySet()){
+				output.add("m"+String.valueOf(genClass.methodMap.get(method).methodNumber)+": nop" + "    #"+key+"."+method);
 				output.addAll(genClass.methodMap.get(method).code);
 			}
 		}
@@ -275,6 +363,7 @@ public class BasicCodeGenerator {
 	 * @param pt
 	 * @return -1 unknown, 0 statement list, 1 statement
 	 * 2 oE, 3 oEP, 4 aE, 5 aEP, 6, cE, 7 cEP, 8 eQE, 9 aSE, 10 aSEP, 11 mDE, 12 mDEP, 13 nE, 14 dE, 15 dEP, 16 hPE
+	 * 17 token, 18 methodContext
 	 */
 	public static int getCaseNumber(ParseTree pt){
 		if(pt instanceof MiniJavaParser.StmtListContext){
@@ -313,6 +402,8 @@ public class BasicCodeGenerator {
 			return 16;
 		}else if(pt.getPayload() instanceof Token){
 			return 17;
+		}else if(pt instanceof MiniJavaParser.MethodDeclContext){
+			return 18;
 		}
 		return -1;
 	}

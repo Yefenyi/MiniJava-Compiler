@@ -26,15 +26,14 @@ public class RegisterHandler {
 		return zero;
 	}
 	
-	public List<String> setAssignment(String pt){
+	public void setAssignment(String pt){
 		if(getAssignment(pt)==zero){
-			//System.out.print("Assigning: "+pt+" to:");
-			//System.out.println(nextReg);
 			regs.get(nextReg).setTree(pt);
 			nextReg++;
+			if(nextReg>regs.size()){
+				regs.add(new Register("t",nextReg));
+			}
 		}
-		//Return list is for if any memory management instructions has to be done to save reg values
-		return null;
 	}
 	public void replaceLast(String pt){
 		if(nextReg!=0){
@@ -44,6 +43,14 @@ public class RegisterHandler {
 	
 	public Register getNextReg(){
 		return regs.get(nextReg);
+	}
+
+
+	public void reset() {
+		for(Register reg:this.regs){
+			reg.represents=null;
+		}
+		this.nextReg=0;
 	}
 
 }

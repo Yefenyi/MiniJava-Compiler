@@ -7,6 +7,7 @@ import parser.ParsedIdentifier;
 public class GeneratedClass {
 	String name;
 	String parrent;
+	int classNumber;
 	Map<String,ParsedIdentifier> fieldMap;
 	Map<String,GeneratedMethod> methodMap;
 	public GeneratedClass(String name){
