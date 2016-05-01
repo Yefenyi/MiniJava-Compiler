@@ -59,7 +59,8 @@ public class RegisterAllocator {
 			rTypePrefixes.add("sgt ");
 			rTypePrefixes.add("sge ");
 			rTypePrefixes.add("seq ");
-			rTypePrefixes.add("snq ");
+			rTypePrefixes.add("sne ");
+			rTypePrefixes.add("snq "); // TODO: Remove once alvin fixes stuff
 			rTypePrefixes.add("add ");
 			rTypePrefixes.add("sub ");
 		}
