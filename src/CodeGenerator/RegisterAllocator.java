@@ -273,27 +273,27 @@ public class RegisterAllocator {
 	}
 	
 	public List<String> allocateAllRegs(List<String> fullProgList) {
+		System.out.println("test");
 		List<String> toOutput = new ArrayList<String>();
 		List<String> toCallAllocateOn = new ArrayList<String>();
 		int envDepth = 0;
-		// TODO: ALLVIIINNN fix spelling
 		for(String ins : fullProgList) {
 			if(envDepth == 0) {
-				if(ins.equals("#exit enviroment")) {
+				if(ins.equals("#exit environment")) {
 					System.err.println("Mismatched enter and exit environments (aka yell at Alvin)");
 				}
-				if(ins.equals("#enter enviroment")) {
+				if(ins.equals("#enter environment")) {
 					++envDepth;
 					toCallAllocateOn.add(ins);
 				} else {
 					toOutput.add(ins);
 				}
 			} else { // We're in something we need to allocate
-				if(ins.equals("#enter enviroment")) {
+				if(ins.equals("#enter environment")) {
 					++envDepth;
 					toCallAllocateOn.add(ins);
 				}
-				else if(ins.equals("#exit enviroment")) {
+				else if(ins.equals("#exit environment")) {
 					--envDepth;
 					toCallAllocateOn.add(ins);
 					if(envDepth == 0) {
