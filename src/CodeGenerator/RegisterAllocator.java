@@ -211,7 +211,7 @@ public class RegisterAllocator {
 				return true;
 			}
 			if(this.assignedRegs.get(i).contains(reg)) {
-				return false;
+				return true;
 			}
 		}
 		return false;
@@ -234,19 +234,21 @@ public class RegisterAllocator {
 		for(String s : insList) {
 			this.addUsedAndAssignedRegs(s);
 		}
-		/*
 		for(int i = 0 ; i  < insList.size() ; ++i) {
 			System.out.println(insList.get(i));
 			System.out.println("\tAssigned: " + this.assignedRegs.get(i).toString());
 			System.out.println("\tUsed: " + this.usedRegs.get(i).toString());
 		}
-		*/
 
 		// Get things for each register and free up as possible
 		for(int i = 0 ; i < insList.size(); ++i) {
 			for(String s : this.assignedRegs.get(i)) {
-				String usingReg = this.getFreeReg();
-				this.finalRegMap.put(s, usingReg);
+				if(!this.finalRegMap.containsKey(s)) {
+					String usingReg = this.getFreeReg();
+					System.out.println("putting new thing in map: " + s + "," + usingReg);
+					this.finalRegMap.put(s, usingReg);
+					System.out.println("testing after map add: " + s + "," + this.finalRegMap.get(s));
+				}
 			}
 			for(String s : this.assignedRegs.get(i)) {
 				if(!stillNeedReg(i, s)) {
@@ -256,6 +258,7 @@ public class RegisterAllocator {
 			}
 			for(String s : this.usedRegs.get(i)) {
 				if(!stillNeedReg(i, s)) {
+					System.out.println("Freed register " + s);
 					this.freeRegMap.put(this.finalRegMap.get(s), true);
 				}
 			}
@@ -273,7 +276,6 @@ public class RegisterAllocator {
 	}
 	
 	public List<String> allocateAllRegs(List<String> fullProgList) {
-		System.out.println("test");
 		List<String> toOutput = new ArrayList<String>();
 		List<String> toCallAllocateOn = new ArrayList<String>();
 		int envDepth = 0;
