@@ -21,6 +21,7 @@ import parser.MiniJavaNodeJumper;
 import parser.MiniJavaNodePrunerListener;
 import parser.MiniJavaTypeCheckerListener;
 import CodeGenerator.BasicCodeGenerator;
+import CodeGenerator.RegisterAllocator;
 import antlr4.MiniJavaLexer;
 import antlr4.MiniJavaParser;
 
@@ -77,8 +78,9 @@ public class GenericDriver {
 		walker.walk(listener3, tree);
 		
 		BasicCodeGenerator gen = new BasicCodeGenerator(listener3.getMap());
+		RegisterAllocator regAllocator = new RegisterAllocator();
 		
 		//gen.generate(); 
-		return gen.getProgram();
+		return regAllocator.allocateAllRegs(gen.getProgram());
 	}
 }

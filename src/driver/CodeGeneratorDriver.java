@@ -29,15 +29,14 @@ import antlr4.MiniJavaParser;
 public class CodeGeneratorDriver {
 
 	public static void main(String[] args) {
-		String fileName = "input2";
 		//TODO we crash we given a blank file
-		String in = "input_output/input2.txt";
+		String in = "input_output/FullCodeGeneratorFullTests/testcase00_14.java";
 		GenericDriver driver = new GenericDriver(in);
 		List<String> list = driver.genBasicOutput();
-		System.out.println("=====Program Start=====\n");
-		for(String item:list){
-			System.out.println(item);
-		}
+		//System.out.println("=====Program Start=====\n");
+		//for(String item:list){
+		//	System.out.println(item);
+		//}
 	}
 
 }
