@@ -76,7 +76,11 @@ public class GenericDriver {
 		
 		MiniJavaTypeCheckerListener listener3 = new MiniJavaTypeCheckerListener();
 		walker.walk(listener3, tree);
-		
+		if(listener3.errorCount>0){
+			for(String error :listener3.errors){
+				System.err.println(error);
+			}
+		}
 		BasicCodeGenerator gen = new BasicCodeGenerator(listener3.getMap());
 		RegisterAllocator regAllocator = new RegisterAllocator();
 		
