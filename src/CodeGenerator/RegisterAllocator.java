@@ -12,11 +12,13 @@ public class RegisterAllocator {
 	private Map<String,String> finalRegMap;
 	private List<List<String>> usedRegs;
 	private List<List<String>> assignedRegs;
+	private List<String> labels;
 	private Map<String,Boolean> freeRegMap;
 	
 	private Set<String> noRegPrefixes;
 	private Set<String> rTypePrefixes;
 	private Set<String> iTypePrefixes;
+	private Set<String> jumpPrefixes;
 	
 	public RegisterAllocator() {
 		this.resetEnvironment();
@@ -27,6 +29,7 @@ public class RegisterAllocator {
 		usedRegs = new ArrayList<List<String>>();
 		assignedRegs = new ArrayList<List<String>>();
 		freeRegMap = new HashMap<String,Boolean>();
+		labels = new ArrayList<String>();
 		freeRegMap.put("$t0", true);
 		freeRegMap.put("$t1", true);
 		freeRegMap.put("$t2", true);
@@ -90,8 +93,6 @@ public class RegisterAllocator {
 		if(noRegPrefixes == null) {
 			noRegPrefixes = new HashSet<String>();
 			noRegPrefixes.add("jal ");
-			noRegPrefixes.add("j ");
-			noRegPrefixes.add("J ");
 			noRegPrefixes.add("#");
 			noRegPrefixes.add("syscall");
 			noRegPrefixes.add("nop");
@@ -104,15 +105,48 @@ public class RegisterAllocator {
 		return false;
 	}
 	
+	private boolean isJumpPrefix(String ins) {
+		if(jumpPrefixes == null) {
+			jumpPrefixes = new HashSet<String>();
+			jumpPrefixes.add("j ");
+			jumpPrefixes.add("J ");
+		}
+		for(String s : jumpPrefixes) {
+			if(ins.startsWith(s)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	private void addUsedAndAssignedRegs(String ins) {
 		List<String> usedReg = new ArrayList<String>();
 		List<String> assignedReg = new ArrayList<String>();
+		boolean labelAdded = false;
 		if(isSomethingWithNoRegs(ins)) {
 			// no registers involved with this
 		} else if(ins.contains(":")) {
 			String[] parts = ins.split(":");
+			labels.add(parts[0].trim());
+			labelAdded = true;
 			addUsedAndAssignedRegs(parts[1].substring(1, parts[1].length()).trim());
 			return;
+		} else if(isJumpPrefix(ins)) {
+			String[] parts = ins.split(" ");
+			if(labels.contains(parts[1].trim())) { // We have a backwards loop, this jump statement is dependent upon stuff used in the common code
+				boolean foundLabel = false;
+				Set<String> toAddToUsed = new HashSet<String>();
+				for(int i = 0 ; i < labels.size() ; ++i) {
+					if(labels.get(i).equals(parts[1].trim())) {
+						foundLabel = true;
+					}
+					if(foundLabel) {
+						toAddToUsed.addAll(usedRegs.get(i));
+						toAddToUsed.addAll(assignedRegs.get(i));
+					}
+				}
+				usedReg.addAll(toAddToUsed);
+			}
 		} else if(isIType(ins)) {
 			String[] parts = ins.split(" ");
 			if(parts[1].contains("t")) {
@@ -187,6 +221,9 @@ public class RegisterAllocator {
 		} else {
 			System.err.println("MISSING INSTRUCTION IN REGISTER ALLOCATOR: " + ins);
 		}
+		if(labels.size() == usedRegs.size()) {
+			labels.add("");
+		}
 		usedRegs.add(usedReg);
 		assignedRegs.add(assignedReg);
 	}
@@ -199,6 +236,7 @@ public class RegisterAllocator {
 			if(toReplace.contains(oldRegName)) {
 				toReplace = toReplace.replaceAll("\\" + oldRegName + " ", "\\" + finalRegMap.get(oldRegName) + " ");
 				toReplace = toReplace.replaceAll("\\" + oldRegName + ",", "\\" + finalRegMap.get(oldRegName) + ",");
+				toReplace = toReplace.replaceAll("\\" + oldRegName + "\\)", "\\" + finalRegMap.get(oldRegName) + "\\)");
 				toReplace = toReplace.replaceAll("\\" + oldRegName + "$", "\\" + finalRegMap.get(oldRegName));
 			}
 		}
@@ -234,11 +272,13 @@ public class RegisterAllocator {
 		for(String s : insList) {
 			this.addUsedAndAssignedRegs(s);
 		}
+		// Go and find backwards jumps
 		for(int i = 0 ; i  < insList.size() ; ++i) {
 			System.out.println(insList.get(i));
 			System.out.println("\tAssigned: " + this.assignedRegs.get(i).toString());
 			System.out.println("\tUsed: " + this.usedRegs.get(i).toString());
 		}
+		
 
 		// Get things for each register and free up as possible
 		for(int i = 0 ; i < insList.size(); ++i) {
