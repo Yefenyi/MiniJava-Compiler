@@ -487,7 +487,12 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 				String c = child.getText();
 				if(c.equals(",")||c.equals("(")||c.equals(".")||c.equals(")")){
 					//Pass
+					if(c.equals(")")&&i<currentMethod.identifierList.size()){
+						this.addError("Invalid number of arguments to method "+currentMethod.getName());
+						break;
+					}
 				}else if(j!=1 && j<DEP.getChildCount()-1){
+					currentMethod.identifierList.size();
 					if(i<currentMethod.identifierList.size()){
 						if(!this.isType(currentMethod.identifierList.get(i).getType(),child)){
 							this.addError("Invalid argument to method "+currentMethod.getName());
