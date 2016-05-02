@@ -85,6 +85,7 @@ public class GenericDriver {
 		RegisterAllocator regAllocator = new RegisterAllocator();
 		
 		//gen.generate(); 
-		return gen.getProgram();//regAllocator.allocateAllRegs(gen.getProgram());
+		//return gen.getProgram();
+		return regAllocator.allocateAllRegs(gen.getProgram());
 	}
 }
