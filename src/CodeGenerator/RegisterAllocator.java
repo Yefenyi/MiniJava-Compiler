@@ -197,7 +197,7 @@ public class RegisterAllocator {
 			if(parts[1].contains("t")) {
 				usedReg.add(parts[1].replace(",", ""));
 			}
-			String otherReg = parts[2].split("\\(")[1].replace("\\)", "");
+			String otherReg = parts[2].split("\\(")[1].split("\\)")[0];
 			if(otherReg.contains("t")) {
 				assignedReg.add(otherReg);
 			}
@@ -206,7 +206,7 @@ public class RegisterAllocator {
 			if(parts[1].contains("t")) {
 				assignedReg.add(parts[1].replace(",", ""));
 			}
-			String otherReg = parts[2].split("\\(")[1].replace("\\)", "");
+			String otherReg = parts[2].split("\\(")[1].split("\\)")[0];
 			if(otherReg.contains("t")) {
 				usedReg.add(otherReg);
 			}
