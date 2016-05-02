@@ -1,26 +1,30 @@
 /** This is input test 2 **/
 class Test2 {
 	public static void main (String[] args) {
-		bar a = new bar();
-		System.out.println(a.method3());
+		foo a = new foo();
+		System.out.println(a.number(1));
 	}
 }
+
 class foo {
 	int num;
+	/*
 	public int set(){
 		num = 3;
 		return 0;
 	}
+	*/
 	public int number(int b){
 		int a =15;
 		return a;
-	}
+	}/*
 	public int method3(){
 		return 1;
-	}
+	}*/
 }
+/*
 class bar extends foo {
 	public int number(int b){
 		return 5;
 	}
-}
+}*/
