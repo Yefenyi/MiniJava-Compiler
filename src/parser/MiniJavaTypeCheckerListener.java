@@ -561,7 +561,11 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 			}else if(pt.getChildCount()==4){
 				return pt.getChild(1).getText();
 			}else if(pt.getChildCount()==3){
-				return this.expressionType(pt.getChild(1));
+				if(pt.getChild(0).equals("(")){
+					return this.expressionType(pt.getChild(1));
+				}else{
+					return "int";
+				}
 			}
 		}else if(pt instanceof EQEContext){
 			return "boolean";

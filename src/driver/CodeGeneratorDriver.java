@@ -30,13 +30,13 @@ public class CodeGeneratorDriver {
 
 	public static void main(String[] args) {
 		//TODO we crash we given a blank file
-		String in = "input_output/FullCodeGeneratorFullTests/testcase00_14.java";
+		String in = "input_output/input2.txt";
 		GenericDriver driver = new GenericDriver(in);
 		List<String> list = driver.genBasicOutput();
-		//System.out.println("=====Program Start=====\n");
-		//for(String item:list){
-		//	System.out.println(item);
-		//}
+		System.out.println("=====Program Start=====\n");
+		for(String item:list){
+			System.out.println(item);
+		}
 	}
 
 }

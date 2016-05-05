@@ -226,8 +226,14 @@ public class BasicCodeGenerator {
 					//Arguments
 					//recursion
 					//this is the first arg
-					
+					for(int i=3;i<pt.getChildCount()-2;i+=2){
+						output.addAll(this.walkTree(pt.getChild(i)));
+					}
 					output.add("#preCall");
+					output.add("mv $a0, "+pointer);
+					for(int i=3;i<pt.getChildCount()-2;i+=2){
+						//move pt values to arguments
+					}
 					output.addAll(this.findMethod(pointer,pt.getChild(1).getText()));
 					//output.add("lw $t0, 0("+pointer+")");
 					
@@ -239,9 +245,16 @@ public class BasicCodeGenerator {
 					regs.setAssignment(parrent+pt.getText());
 					break;
 			case 16:if(debug) System.out.println("HPE: "+pt.getText());
-					if(pt.getChildCount()==3){// ( pt )
-						output.addAll(this.walkTree(pt.getChild(1)));
-						regs.replaceLast(pt.getText());
+					if(pt.getChildCount()==3){// ( pt ) or system.in.readInt
+						if(pt.getChild(0).equals("(")){
+							output.addAll(this.walkTree(pt.getChild(1)));
+							regs.replaceLast(pt.getText());
+						} else {
+							output.add("li $v0, 5");
+							output.add("syscall");
+							regs.setAssignment(pt.getText());
+							output.add("move "+regs.getAssignment(pt.getText())+", $v0");
+						}
 					}else if(pt.getChildCount()==4){
 						// new id()
 						String genClass = pt.getChild(1).getText();
@@ -251,12 +264,11 @@ public class BasicCodeGenerator {
 						output.add("syscall");
 						output.add("addi "+regs.getNextReg()+", $gp, "+String.valueOf(this.genClassMap.get(genClass).classNumber*4));
 						output.add("sw "+regs.getNextReg()+", 0($v0)");//$v0 is the pointer
+						output.add("sw $a0, 0($v0)");
 						output.add("move "+regs.getNextReg()+", $v0");
 						regs.setAssignment(pt.getText());
 					}else{
-						if(debug)System.out.println("shouldn't get called says alvin...");
-						if(debug)System.out.println(pt.getText());
-						//TODO
+						//Just a variable that should already have been created
 					}
 					break;
 			case 17:if(debug) System.out.println("Token: "+pt.getText());
@@ -321,9 +333,7 @@ public class BasicCodeGenerator {
 	}
 
 	private int getSize(String genClass) {
-		// TODO get the size of the class and field variables
-		// TODO maybe include garbage collection
-		return 1*4;
+		return (2+this.genClassMap.get(genClass).fieldMap.size())*4;
 	}
 
 	private int getMemory(String genClass) {
@@ -396,6 +406,7 @@ public class BasicCodeGenerator {
 
 	public List<String> getProgram() {
 		List<String> output = new ArrayList<String>();
+		this.fixReturns();
 		output.addAll(this.initClasses());
 		output.add("j m"+String.valueOf(this.genClassMap.get(main).classNumber));
 		for(String key : this.parsedClassMap.keySet()){
@@ -407,6 +418,24 @@ public class BasicCodeGenerator {
 		}
 		return output;
 	}
+	private void fixReturns() {
+		for(String key: this.genClassMap.keySet()){
+			GeneratedClass c = this.genClassMap.get(key);
+			for(String m:c.methodMap.keySet()){
+				GeneratedMethod method= c.methodMap.get(m);
+				int index =0;
+				for(int i=0;i<method.code.size();i++){
+					if(method.code.get(i).equals("#exit environment")){
+						index = i;
+					}
+				}
+				method.code.remove(index);
+				method.code.add("#exit environment");
+			}
+		}
+		
+	}
+
 	/**
 	 * Give number type for type of pt tree give
 	 * @param pt
