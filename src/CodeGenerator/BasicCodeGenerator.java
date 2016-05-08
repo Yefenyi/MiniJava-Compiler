@@ -474,7 +474,7 @@ public class BasicCodeGenerator {
 					}
 				}
 				method.code.remove(index);
-				method.code.add("#exit environment");
+				method.code.add(method.code.size()-1,"#exit environment");
 			}
 		}
 		
