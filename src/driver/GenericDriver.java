@@ -17,13 +17,13 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.antlr.v4.runtime.tree.gui.TreeViewer;
 
+import CodeGenerator.BasicCodeGenerator;
+import CodeGenerator.RegisterAllocatorSimple;
+import antlr4.MiniJavaLexer;
+import antlr4.MiniJavaParser;
 import parser.MiniJavaNodeJumper;
 import parser.MiniJavaNodePrunerListener;
 import parser.MiniJavaTypeCheckerListener;
-import CodeGenerator.BasicCodeGenerator;
-import CodeGenerator.RegisterAllocator;
-import antlr4.MiniJavaLexer;
-import antlr4.MiniJavaParser;
 
 
 public class GenericDriver {
@@ -82,7 +82,7 @@ public class GenericDriver {
 			}
 		}
 		BasicCodeGenerator gen = new BasicCodeGenerator(listener3.getMap());
-		RegisterAllocator regAllocator = new RegisterAllocator();
+		RegisterAllocatorSimple regAllocator = new RegisterAllocatorSimple();
 		
 		//gen.generate(); 
 		//return gen.getProgram();
