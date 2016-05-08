@@ -140,6 +140,9 @@ public class BasicCodeGenerator {
 					String parent = this.getParentsNonPrime(pt.getParent());
 					output.add("or "+regs.getNextReg()+", "+regs.getAssignment(parent)+", "+regs.getAssignment(pt.getChild(1).getText()));
 					regs.setAssignment(parent+pt.getChild(0).getText()+pt.getChild(1).getText());
+					if(pt.getChild(2).getChildCount()!=0){
+						output.addAll(this.walkTree(pt.getChild(2)));
+					}
 					break;
 			case 4: if(debug) System.out.println("And:"+pt.getText());
 					output.addAll(this.walkTree(pt.getChild(0)));
@@ -150,6 +153,9 @@ public class BasicCodeGenerator {
 					parent = this.getParentsNonPrime(pt.getParent());
 					output.add("and "+regs.getNextReg()+", "+regs.getAssignment(parent)+", "+regs.getAssignment(pt.getChild(1).getText()));
 					regs.setAssignment(parent+pt.getChild(0).getText()+pt.getChild(1).getText());
+					if(pt.getChild(2).getChildCount()!=0){
+						output.addAll(this.walkTree(pt.getChild(2)));
+					}
 					break;
 			case 6: if(debug) System.out.println("Comparison Expresion: "+pt.getText());
 					output.addAll(this.walkTree(pt.getChild(0)));
