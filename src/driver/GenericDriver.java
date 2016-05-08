@@ -18,6 +18,7 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.antlr.v4.runtime.tree.gui.TreeViewer;
 
 import CodeGenerator.BasicCodeGenerator;
+import CodeGenerator.PeepHoleOptimizer;
 import CodeGenerator.RegisterAllocatorSimple;
 import antlr4.MiniJavaLexer;
 import antlr4.MiniJavaParser;
@@ -86,6 +87,8 @@ public class GenericDriver {
 		
 		//gen.generate(); 
 		//return gen.getProgram();
+		PeepHoleOptimizer optimizer = new PeepHoleOptimizer(gen.genClassMap);
+		optimizer.run();
 		return regAllocator.allocateAllRegs(gen.getProgram());
 	}
 }

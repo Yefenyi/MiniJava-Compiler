@@ -25,7 +25,7 @@ public class BasicCodeGenerator {
 	private int labelNumber =0;
 	private int methodNumber = 0;
 	private int callNumber = 0;
-	boolean debug = true;
+	boolean debug = false;
 	
 	public BasicCodeGenerator(Map<String,ParsedClass> map){
 		this.parsedClassMap = map;
@@ -241,8 +241,7 @@ public class BasicCodeGenerator {
 						output.addAll(this.walkTree(pt.getChild(i)));
 					}
 					output.add("#preCall");
-					output.add("sw $ra -4($sp)");
-					output.add("addi $sp, $sp, -4");
+					
 					output.add("move $a0, "+pointer);
 					int j =1;
 					for(int i=3;i<pt.getChildCount()-2;i+=2){
@@ -258,6 +257,8 @@ public class BasicCodeGenerator {
 						output.add("addi $sp, $sp, "+String.valueOf(-4*(j-1)));
 					}
 					output.addAll(this.findMethod(pointer,pt.getChild(1).getText()));
+					output.add("sw $ra -4($sp)");
+					output.add("addi $sp, $sp, -4");
 					output.add("jalr $s0");
 					if(j>1){
 						output.add("addi $sp, $sp, "+String.valueOf(4*(j-1)));
