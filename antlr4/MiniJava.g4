@@ -31,7 +31,9 @@ hPE: NEW ID LPREN RPREN
 | NULL
 | TRUE
 | FALSE
-| LPREN oE RPREN;
+| LPREN oE RPREN
+| SYSTEMIN LPREN RPREN;
+
 
 program: mainClassDecl classDecl* EOF; 
 mainClassDecl: CLASS ID LCURL PUBLIC STATIC VOID MAIN LPREN STRING 
@@ -121,6 +123,7 @@ IF: 'if';
 ELSE: 'else';
 WHILE: 'while';
 SYSTEMPRINT: ('System.out.println' {!('A' <= _input.LA(1) && _input.LA(1) <= 'z' || '0' <= _input.LA(1) && _input.LA(1) <= '9')}?);
+SYSTEMIN: ('System.in.readInt' {!('A' <= _input.LA(1) && _input.LA(1) <= 'z' || '0' <= _input.LA(1) && _input.LA(1) <= '9')}?);
 
 INTEGER	: ( NONZERODIGIT DIGIT* )  | '0';
 OPERATOR: '+' | '-' | '*' | '/' | '<' | '<=' | '>=' | '>' | '==' | '!=' | '&&' | '||' | '!';

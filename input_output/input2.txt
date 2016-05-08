@@ -2,7 +2,9 @@
 class Test2 {
 	public static void main (String[] args) {
 		foo a = new foo();
-		System.out.println(a.number(1));
+		System.out.println(a.number());
+		System.out.println(a.number());
+		System.out.println(a.number());
 	}
 }
 
@@ -14,13 +16,15 @@ class foo {
 		return 0;
 	}
 	*/
-	public int number(int b){
-		int a =15;
-		return a;
-	}/*
+	public int number(){
+		num = num +1;
+		return num;
+	}
+	/*
 	public int method3(){
 		return 1;
-	}*/
+	}
+	*/
 }
 /*
 class bar extends foo {

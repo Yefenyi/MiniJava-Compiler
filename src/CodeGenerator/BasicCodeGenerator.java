@@ -1,7 +1,6 @@
 package CodeGenerator;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +9,7 @@ import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import parser.ParsedClass;
+import parser.ParsedIdentifier;
 import parser.ParsedMainClass;
 import parser.ParsedMethod;
 import antlr4.MiniJavaLexer;
@@ -19,6 +19,7 @@ public class BasicCodeGenerator {
 	private Map<String,ParsedClass> parsedClassMap;
 	private Map<String,GeneratedClass> genClassMap = new HashMap<String,GeneratedClass>();
 	private Map<String,Integer> methodToNumber = new HashMap<String, Integer>();
+	private Map<String, ParsedIdentifier> currentClassVariables;
 	private RegisterHandler regs;
 	private String main;
 	private int labelNumber =0;
@@ -39,6 +40,11 @@ public class BasicCodeGenerator {
 			if(parsedClass instanceof ParsedMainClass){
 				main = parsedClass.getName();
 			}
+			for(String k: parsedClass.getNameToMethod().keySet()){
+				if(!this.methodToNumber.containsKey(k)){
+					this.methodToNumber.put(k,methodNumber++);
+				}
+			}
 			GeneratedClass c =this.createGenClass(parsedClass,start);
 			start = c.classNumber +c.methodMap.size()*2+2;
 		}
@@ -51,12 +57,11 @@ public class BasicCodeGenerator {
 		Map<String,GeneratedMethod> methodMap = new HashMap<String,GeneratedMethod>();
 		genClass.setFieldMap(parsedClass.getNameToField());
 		int start =classNumber;
+		
 		for(String key: parsedClass.getNameToMethod().keySet()){
-			if(!this.methodToNumber.containsKey(key)){
-				this.methodToNumber.put(key,methodNumber++);
-			}
-			GeneratedMethod  method  = this.createGenMethod(parsedClass.getNameToMethod().get(key));
 			regs.reset();
+			regs.setArguements(parsedClass.getNameToMethod().get(key).getIdentifierList());
+			GeneratedMethod  method  = this.createGenMethod(parsedClass.getNameToMethod().get(key).getIdentifierList(),parsedClass.getNameToMethod().get(key),parsedClass.getNameToField());
 			method.methodNumber = start++;
 			methodMap.put(key,method);
 		}
@@ -98,10 +103,19 @@ public class BasicCodeGenerator {
 		return output;
 	}
 	
-	private GeneratedMethod createGenMethod(ParsedMethod parsedMethod) {
+	private GeneratedMethod createGenMethod(List<ParsedIdentifier> list, ParsedMethod parsedMethod, Map<String, ParsedIdentifier> map) {
 		ParseTree pt = parsedMethod.getTree();
-		return new GeneratedMethod(parsedMethod.getName(),this.walkTree(pt));
+		List<String> code = new ArrayList<String>();
+		currentClassVariables = map;
+		for(int i=3;list!=null &&(i<list.size());i++){
+			code.add("lw "+regs.getNextReg()+", "+String.valueOf(4*(i-3))+"($sp)");
+			regs.setAssignment(list.get(i).name);
+		}
+		code.addAll(this.walkTree(pt));
+		currentClassVariables = null;
+		return new GeneratedMethod(parsedMethod.getName(),code);
 	}
+
 	private List<String> walkTree(ParseTree pt){
 		List<String> output = new ArrayList<String>();
 		switch(BasicCodeGenerator.getCaseNumber(pt)){
@@ -220,28 +234,51 @@ public class BasicCodeGenerator {
 			case 15:if(debug) System.out.println("Function call prime: "+pt.getText());
 					String parrent = this.getParentsNonPrime(pt.getParent());
 					Register pointer = regs.getAssignment(parrent);
-					//System.out.println(pointer+" "+pointer.represents); TODO
-					
 					//TODO 
-					//Arguments
-					//recursion
+					//Most Likely spot for something to go wrong
 					//this is the first arg
-					
+					for(int i=3;i<pt.getChildCount()-2;i+=2){
+						output.addAll(this.walkTree(pt.getChild(i)));
+					}
 					output.add("#preCall");
+					output.add("sw $ra -4($sp)");
+					output.add("addi $sp, $sp, -4");
+					output.add("move $a0, "+pointer);
+					int j =1;
+					for(int i=3;i<pt.getChildCount()-2;i+=2){
+						//move pt values to arguments
+						if(i<9){
+							output.add("move $a"+String.valueOf(1+(i-3)/2)+", "+regs.getAssignment(pt.getChild(i).getText()));
+						}else{
+							output.add("sw "+regs.getAssignment(pt.getChild(i).getText())+", "+String.valueOf(-4*j)+"($sp)");
+							j++;
+						}
+					}
+					if(j>1){
+						output.add("addi $sp, $sp, "+String.valueOf(-4*(j-1)));
+					}
 					output.addAll(this.findMethod(pointer,pt.getChild(1).getText()));
-					//output.add("lw $t0, 0("+pointer+")");
-					
-					//output.add("addi "+regs.getNextReg()+", "+regs.getNextReg()  + ", "+String.valueOf());
-					
-					output.add("jalr $t0");
+					output.add("jalr $s0");
+					if(j>1){
+						output.add("addi $sp, $sp, "+String.valueOf(4*(j-1)));
+					}
 					output.add("#postCall");
+					output.add("lw $ra 0($sp)");
+					output.add("addi $sp, $sp, 4");
 					output.add("move "+regs.getNextReg()+", $v0");
 					regs.setAssignment(parrent+pt.getText());
 					break;
 			case 16:if(debug) System.out.println("HPE: "+pt.getText());
-					if(pt.getChildCount()==3){// ( pt )
-						output.addAll(this.walkTree(pt.getChild(1)));
-						regs.replaceLast(pt.getText());
+					if(pt.getChildCount()==3){// ( pt ) or system.in.readInt
+						if(pt.getChild(0).equals("(")){
+							output.addAll(this.walkTree(pt.getChild(1)));
+							regs.replaceLast(pt.getText());
+						} else {
+							output.add("li $v0, 5");
+							output.add("syscall");
+							regs.setAssignment(pt.getText());
+							output.add("move "+regs.getAssignment(pt.getText())+", $v0");
+						}
 					}else if(pt.getChildCount()==4){
 						// new id()
 						String genClass = pt.getChild(1).getText();
@@ -251,12 +288,11 @@ public class BasicCodeGenerator {
 						output.add("syscall");
 						output.add("addi "+regs.getNextReg()+", $gp, "+String.valueOf(this.genClassMap.get(genClass).classNumber*4));
 						output.add("sw "+regs.getNextReg()+", 0($v0)");//$v0 is the pointer
+						output.add("sw $a0, 4($v0)");
 						output.add("move "+regs.getNextReg()+", $v0");
 						regs.setAssignment(pt.getText());
 					}else{
-						if(debug)System.out.println("shouldn't get called says alvin...");
-						if(debug)System.out.println(pt.getText());
-						//TODO
+						//Just a variable that should already have been created
 					}
 					break;
 			case 17:if(debug) System.out.println("Token: "+pt.getText());
@@ -264,7 +300,12 @@ public class BasicCodeGenerator {
 						this.regs.setAssignment(pt.getText());
 						output.add("li "+this.regs.getAssignment(pt.getText())+", "+pt.getText());
 					}else if(((Token) pt.getPayload()).getType()==MiniJavaLexer.ID){
-						//Pass, variable should be in register already
+						//Pass, variable should be in register already unless class variable
+						if(this.currentClassVariables.containsKey(pt.getText())){
+							this.regs.setAssignment(pt.getText());
+							output.add("lw "+regs.getAssignment(pt.getText())+", "+
+							String.valueOf(this.getIndex(pt.getText(),this.currentClassVariables)*4+8)+"($a0)");
+						}
 					}else if(((Token) pt.getPayload()).getType()==MiniJavaLexer.FALSE){
 						this.regs.setAssignment("false");
 						output.add("li "+this.regs.getAssignment(pt.getText())+", 0");
@@ -272,14 +313,12 @@ public class BasicCodeGenerator {
 						this.regs.setAssignment("true");
 						output.add("li "+this.regs.getAssignment(pt.getText())+", 1");
 					}else{
-						//TODO
+						if(this.debug)System.out.println("I apprently don't care about "+pt.getText());
 					}
 					break;
 			case 18:if(debug) System.out.println("Method: "+pt.getText());
-					//TODO might be all thats needed
-					//TODO arguments need to be handled somewhere
 					int index =0;
-					for(;!(pt.getChild(index)instanceof MiniJavaParser.StmtListContext);index++);
+					for(;!(pt.getChild(index)instanceof MiniJavaParser.StmtListContext);index++)//pass;
 					output.addAll(this.walkTree(pt.getChild(index)));
 					output.addAll(this.walkTree(pt.getChild(index+2)));
 					output.add("move $v0 ,"+regs.getAssignment(pt.getChild(index+2).getText()));
@@ -293,41 +332,36 @@ public class BasicCodeGenerator {
 	}
 	
 	private List<String> findMethod(Register pointer, String method) {
-		// Jump address placed in $t0
-		//TODO
+		// Jump address placed in $s0
 		List<String> output = new ArrayList<String>();
-		output.add("lw $t0, 0("+pointer+")");
-		output.add("lw $t1, 4($t0)");//Size of class 
-		output.add("li $t2, 8");// t2 current size
-		output.add("addi $t3, $t0, 8");
+		output.add("#search");
+		output.add("lw $s0, 0("+pointer+")");
+		output.add("lw $s1, 4($s0)");//Size of class 
+		output.add("li $s2, 8");// t2 current size
+		output.add("addi $s3, $s0, 8");
 		output.add("CS"+String.valueOf(this.callNumber)+":    nop");
-		output.add("beq $t2, $t1, CP"+String.valueOf(this.callNumber));
-		output.add("lw $t4, 0($t3)");
-		output.add("addi $t3, $t3, 8");
-		output.add("beq $t4, "+String.valueOf(this.methodToNumber.get(method))+" CE"+String.valueOf(this.callNumber));
-		output.add("addi $t2, $t2 8");
+		output.add("beq $s2, $s1, CP"+String.valueOf(this.callNumber));
+		output.add("lw $s4, 0($s3)");
+		output.add("addi $s3, $s3, 8");
+		output.add("beq $s4, "+String.valueOf(this.methodToNumber.get(method))+" CE"+String.valueOf(this.callNumber));
+		output.add("addi $s2, $s2 8");
 		output.add("j CS"+String.valueOf(this.callNumber));
 		output.add("CP"+String.valueOf(this.callNumber)+":    nop");
-		output.add("lw $t0, 0($t0)");
-		output.add("lw $t1, 4($t0)");//Size of class 
-		output.add("li $t2, 8");// t2 current size
-		output.add("addi $t3, $t0, 8");
+		output.add("lw $s0, 0($s0)");
+		output.add("lw $s1, 4($s0)");//Size of class 
+		output.add("li $s2, 8");// t2 current size
+		output.add("addi $s3, $s0, 8");
 		output.add("j CS"+String.valueOf(this.callNumber));
 		output.add("CE"+String.valueOf(this.callNumber)+":    nop");
-		output.add("add $t0, $t0, $t2");
-		output.add("lw $t0, 4($t0)");//should be jump address
+		output.add("add $s0, $s0, $s2");
+		output.add("lw $s0, 4($s0)");//should be jump address
 		this.callNumber++;
+		output.add("#searchEnds");
 		return output;
 	}
 
 	private int getSize(String genClass) {
-		// TODO get the size of the class and field variables
-		// TODO maybe include garbage collection
-		return 1*4;
-	}
-
-	private int getMemory(String genClass) {
-		return genClassMap.get(genClass).classNumber*4;
+		return (2+this.genClassMap.get(genClass).fieldMap.size())*4;
 	}
 
 	private List<String> getStmtString(ParseTree pt) {
@@ -360,6 +394,10 @@ public class BasicCodeGenerator {
 			output.add("#variable assignment");
 			output.addAll(this.walkTree(pt.getChild(2)));
 			output.add("add "+regs.getAssignment(pt.getChild(0).getText())+", " + regs.getAssignment(pt.getChild(2).getText())+", $zero");
+			if(this.currentClassVariables!=null&&this.currentClassVariables.containsKey(pt.getChild(0).getText())){
+				//Memory needs to be updated
+				output.add("sw "+regs.getAssignment(pt.getChild(0).getText())+", "+String.valueOf(8+4*this.getIndex(pt.getChild(0).getText(),this.currentClassVariables)+"($a0)"));
+			}
 		} else{
 			int elsePoint = this.labelNumber++;
 			int end = this.labelNumber++;
@@ -372,6 +410,17 @@ public class BasicCodeGenerator {
 			output.add("L"+String.valueOf(end)+":    nop"); //end
 		}
 		return output;
+	}
+
+	private int getIndex(String text,	Map<String, ParsedIdentifier> map) {
+		int index = 0;
+		for(String child:map.keySet()){
+			if(child.equals(text)){
+				return index;
+			}
+			index++;
+		}
+		return index;
 	}
 
 	private String getParentsNonPrime(ParseTree pt) {
@@ -394,8 +443,13 @@ public class BasicCodeGenerator {
 		return output;
 	}
 
+	/**
+	 *Return a list of instructions for the program
+	 * @return List<String>
+	 */
 	public List<String> getProgram() {
 		List<String> output = new ArrayList<String>();
+		this.fixReturns();
 		output.addAll(this.initClasses());
 		output.add("j m"+String.valueOf(this.genClassMap.get(main).classNumber));
 		for(String key : this.parsedClassMap.keySet()){
@@ -407,6 +461,24 @@ public class BasicCodeGenerator {
 		}
 		return output;
 	}
+	private void fixReturns() {
+		for(String key: this.genClassMap.keySet()){
+			GeneratedClass c = this.genClassMap.get(key);
+			for(String m:c.methodMap.keySet()){
+				GeneratedMethod method= c.methodMap.get(m);
+				int index =0;
+				for(int i=0;i<method.code.size();i++){
+					if(method.code.get(i).equals("#exit environment")){
+						index = i;
+					}
+				}
+				method.code.remove(index);
+				method.code.add("#exit environment");
+			}
+		}
+		
+	}
+
 	/**
 	 * Give number type for type of pt tree give
 	 * @param pt
