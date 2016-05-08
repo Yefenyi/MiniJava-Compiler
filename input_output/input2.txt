@@ -1,11 +1,10 @@
 /** This is input test 2 **/
 class Test2 {
 	public static void main (String[] args) {
-		int i =0;
-		while(i<10){
-			System.out.println(System.in.readInt());
-			i = i+1;
-		}
+		foo a = new foo();
+		System.out.println(a.number());
+		System.out.println(a.number());
+		System.out.println(a.number());
 	}
 }
 
@@ -16,13 +15,16 @@ class foo {
 		num = 3;
 		return 0;
 	}
-	
-	public int number(int a,int b,int c){
-		return a+b+c;
-	}/*
+	*/
+	public int number(){
+		num = num +1;
+		return num;
+	}
+	/*
 	public int method3(){
 		return 1;
-	}*/
+	}
+	*/
 }
 /*
 class bar extends foo {

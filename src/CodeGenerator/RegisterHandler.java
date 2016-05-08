@@ -5,20 +5,33 @@ import java.util.List;
 
 import org.antlr.v4.runtime.tree.ParseTree;
 
+import parser.ParsedIdentifier;
+
 
 public class RegisterHandler {
 	private List<Register> regs;
 	private Register zero = new Register("zero",0);
+	private List<Register> mem;
 	private int nextReg = 0;
 	public RegisterHandler(){
 		regs=new ArrayList<Register>();
 		for(int i=0;i<100;i++){
 			regs.add(new Register("t",i));
 		}
+		mem=new ArrayList<Register>();
+		mem.add(new Register("a",0));
+		mem.add(new Register("a",1));
+		mem.add(new Register("a",2));
+		mem.add(new Register("a",3));
 	}
 	
 	public Register getAssignment(String pt){
 		for(Register reg : regs){
+			if(reg.sameTree(pt)){
+				return reg;
+			}
+		}
+		for(Register reg : mem){
 			if(reg.sameTree(pt)){
 				return reg;
 			}
@@ -50,7 +63,19 @@ public class RegisterHandler {
 		for(Register reg:this.regs){
 			reg.represents=null;
 		}
+		for(Register reg:this.mem){
+			reg.represents=null;
+		}
 		this.nextReg=0;
+	}
+
+	public void setArguements(List<ParsedIdentifier> identifierList) {
+		mem.get(0).setTree("this");
+		if(identifierList!=null){
+		for(int i=0;i<identifierList.size()&&i<3;i++){
+			mem.get(i+1).setTree(identifierList.get(i).name);
+		}
+		}
 	}
 
 }
