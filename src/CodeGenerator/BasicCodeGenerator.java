@@ -17,7 +17,7 @@ import antlr4.MiniJavaParser;
 
 public class BasicCodeGenerator {
 	private Map<String,ParsedClass> parsedClassMap;
-	private Map<String,GeneratedClass> genClassMap = new HashMap<String,GeneratedClass>();
+	public Map<String,GeneratedClass> genClassMap = new HashMap<String,GeneratedClass>();
 	private Map<String,Integer> methodToNumber = new HashMap<String, Integer>();
 	private Map<String, ParsedIdentifier> currentClassVariables;
 	private RegisterHandler regs;
@@ -318,7 +318,7 @@ public class BasicCodeGenerator {
 					break;
 			case 18:if(debug) System.out.println("Method: "+pt.getText());
 					int index =0;
-					for(;!(pt.getChild(index)instanceof MiniJavaParser.StmtListContext);index++)//pass;
+					for(;!(pt.getChild(index)instanceof MiniJavaParser.StmtListContext);index++);
 					output.addAll(this.walkTree(pt.getChild(index)));
 					output.addAll(this.walkTree(pt.getChild(index+2)));
 					output.add("move $v0 ,"+regs.getAssignment(pt.getChild(index+2).getText()));
