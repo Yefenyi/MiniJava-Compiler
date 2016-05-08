@@ -25,7 +25,7 @@ public class BasicCodeGenerator {
 	private int labelNumber =0;
 	private int methodNumber = 0;
 	private int callNumber = 0;
-	boolean debug = false;
+	boolean debug = true;
 	
 	public BasicCodeGenerator(Map<String,ParsedClass> map){
 		this.parsedClassMap = map;
@@ -271,7 +271,7 @@ public class BasicCodeGenerator {
 					break;
 			case 16:if(debug) System.out.println("HPE: "+pt.getText());
 					if(pt.getChildCount()==3){// ( pt ) or system.in.readInt
-						if(pt.getChild(0).equals("(")){
+						if(pt.getChild(0).getText().equals("(")){
 							output.addAll(this.walkTree(pt.getChild(1)));
 							regs.replaceLast(pt.getText());
 						} else {
