@@ -221,11 +221,11 @@ public class BasicCodeGenerator {
 					output.addAll(this.walkTree(pt.getChild(1)));
 					Register exp = regs.getAssignment(pt.getChild(1).getText());
 					if(pt.getChild(0).getText().equals("!")){
-						output.add("xori "+ exp +", "+exp+", 1");
+						output.add("xori "+ regs.getNextReg() +", "+exp+", 1");
 					}else{
-						output.add("sub "+exp+", $zero"+", "+exp);
+						output.add("sub "+regs.getNextReg()+", $zero"+", "+exp);
 					}
-					exp.setTree(pt.getText());
+					regs.setAssignment(pt.getText());
 					break;
 			case 14:if(debug) System.out.println("Function call: "+pt.getText());
 					output.addAll(this.walkTree(pt.getChild(0)));
