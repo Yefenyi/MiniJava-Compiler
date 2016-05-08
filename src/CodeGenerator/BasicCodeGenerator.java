@@ -195,12 +195,15 @@ public class BasicCodeGenerator {
 			case 10:if(debug) System.out.println("Add or Sub Prime: "+pt.getText());
 					output.addAll(this.walkTree(pt.getChild(1)));
 					String parentString = this.getParentsNonPrime(pt.getParent());
-					if(pt.getChild(0).getText().equals("+")){
-						output.add("add "+regs.getNextReg()+", "+regs.getAssignment(parentString)+", "+regs.getAssignment(pt.getChild(1).getText()));
-					}else{
-						output.add("sub "+regs.getNextReg()+", "+regs.getAssignment(parentString)+", "+regs.getAssignment(pt.getChild(1).getText()));
-					}
+					//TODO this might have to go to all the expressions 
 					regs.setAssignment(parentString+pt.getChild(0).getText()+pt.getChild(1).getText());
+					Register reg = regs.getAssignment(parentString+pt.getChild(0).getText()+pt.getChild(1).getText());
+					if(pt.getChild(0).getText().equals("+")){
+						output.add("add "+reg+", "+regs.getAssignment(parentString)+", "+regs.getAssignment(pt.getChild(1).getText()));
+					}else{
+						output.add("sub "+reg+", "+regs.getAssignment(parentString)+", "+regs.getAssignment(pt.getChild(1).getText()));
+					}
+					
 					if(pt.getChild(2).getChildCount()!=0){
 						output.addAll(this.walkTree(pt.getChild(2)));
 					}
