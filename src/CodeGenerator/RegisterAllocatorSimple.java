@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class RegisterAllocator {
+public class RegisterAllocatorSimple {
 	
 	private Map<String,String> finalRegMap;
 	private List<List<String>> usedRegs;
@@ -22,7 +22,7 @@ public class RegisterAllocator {
 	private Set<String> iTypePrefixes;
 	private Set<String> jumpPrefixes;
 	
-	public RegisterAllocator() {
+	public RegisterAllocatorSimple() {
 		this.resetEnvironment();
 	}
 	
@@ -253,7 +253,7 @@ public class RegisterAllocator {
 				return true;
 			}
 			if(this.assignedRegs.get(i).contains(reg)) {
-				return true;
+				return false;
 			}
 		}
 		return false;
@@ -296,6 +296,25 @@ public class RegisterAllocator {
 				maxReg = max(Integer.parseInt(s.split("t")[1]), maxReg);
 			}
 		}
+		stackUsed = maxReg * 4;
+		for(int i = 0 ; i < insList.size() ; ++i) {
+			for(String s : usedRegs.get(i)) {
+				List<String> assigned = new ArrayList<String>();
+				assigned.add(s);
+				assignedRegs.add(i, assigned);
+				usedRegs.add(i, new ArrayList<String>());
+				insList.add(i, "lw " + s + ", " + Integer.parseInt(s.split("t")[1]) * 4 + "($sp)");
+				++i;
+			}
+			for(String s : assignedRegs.get(i)) {
+				++i;
+				List<String> used = new ArrayList<String>();
+				used.add(s);
+				usedRegs.add(i, used);
+				assignedRegs.add(i, new ArrayList<String>());
+				insList.add(i, "sw " + s + ", " + Integer.parseInt(s.split("t")[1]) * 4 + "($sp)");
+			}
+		}
 		
 
 		// Get things for each register and free up as possible
@@ -304,65 +323,11 @@ public class RegisterAllocator {
 				if(!this.finalRegMap.containsKey(s)) {
 					String usingReg = this.getFreeReg();
 					if(usingReg == null) {
-						// TODO: do the special stuff
-						// 0. Find furthest away register usage
-						String regToReassign = "";
-						int maxdistance = -1;
-						for(String reg : freeRegMap.keySet()) {
-							for(int k = i + 1 ; k < insList.size() ; ++k) {
-								for(String reg2 : usedRegs.get(k)) {
-									if(finalRegMap.get(reg2) != null && finalRegMap.get(reg2).equals(reg)) {
-										maxdistance = max(maxdistance, k - i);
-										if(maxdistance == k - i) {
-											regToReassign = reg2;
-										}
-									}
-								}
-							}
-						}
-						// 1. Find all future uses and rename
-						String regToChangeTo = "$t" + (maxReg + 1);
-						boolean initialLoad = false;
-						for(int k = i; k < insList.size(); ++k) {
-							if(usedRegs.get(k).contains(regToReassign)) {
-								if(!initialLoad) {
-									// 2. Put load in new reg lw $newReg 0($sp) before first use at new reg
-									if(!isJumpPrefix(insList.get(k))) {
-										insList.add(k, "lw " + regToChangeTo + ", " + stackUsed + "($sp)");
-										usedRegs.add(k, new ArrayList<String>());
-										assignedRegs.add(k, new ArrayList<String>());
-										insList.add(k + 1, this.renameReg(insList.get(k+1), regToReassign, regToChangeTo));
-										insList.remove(k+2);
-										initialLoad = true;
-										k++;
-									}
-								} else {
-									insList.add(k, this.renameReg(insList.get(k+1), regToReassign, regToChangeTo));
-									insList.remove(k + 1);
-								}
-							}
-						}
-						// 3. Put store after last assignment (go backwards) sw $oldReg 0($sp)
-						for(int k = i - 1 ; k >= 0 ; --k) {
-							if(assignedRegs.get(k).contains(regToReassign)) {
-								insList.add(k + 1, "sw " + regToReassign + ", " + stackUsed + "($sp)");
-							}
-						}
-						// TODO: Loop + if statement stuff
-						// 5. Make sure we have room in the stack
-						this.stackUsed += 4;
-						System.out.println("================Recursing==============");
-						for(int k = 0 ; k < insList.size() ; ++k) {
-							if(k == i) {
-								System.out.println("RAN OUT HERE");
-							}
-							System.out.println(insList.get(k));
-						}
-						return this.allocateRegs(insList);
+						System.out.println("HOWWW?");
 					}
 					//System.out.println("putting new thing in map: " + s + "," + usingReg);
 					this.finalRegMap.put(s, usingReg);
-					//System.out.println("testing after map add: " + s + "," + this.finalRegMap.get(s));
+					//System.out.println("testing after map add: " + s + "," + this.finalRegMap.get(s))
 				}
 			}
 			for(String s : this.assignedRegs.get(i)) {
