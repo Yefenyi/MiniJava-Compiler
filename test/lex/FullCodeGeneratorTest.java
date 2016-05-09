@@ -22,6 +22,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import driver.GenericDriver;
+import junit.framework.Assert;
 
 @RunWith(Parameterized.class)
 public class FullCodeGeneratorTest {
@@ -54,8 +55,12 @@ public class FullCodeGeneratorTest {
 			//p = pb.start();
 			p = Runtime.getRuntime().exec("java -jar mars.jar nc " + inASM);
 			InputStream in = p.getInputStream();
+			int counter = 0;
 			while(p.isAlive()) {
 				System.out.println("waiting for termination..");
+				if(++counter > 100) {
+					Assert.fail(this.filePrefix);
+				}
 				Thread.sleep(100);
 			}
 			File outFile = new File(outRunIO);
@@ -88,6 +93,7 @@ public class FullCodeGeneratorTest {
 	@Test
 	public void testAgainstExpectedOutput() {
 		GenericDriver driver = new GenericDriver("./input_output/FullCodeGeneratorFullTests/" + this.filePrefix + ".java");
+		System.out.println(this.filePrefix);
 		List<String> generatedASM = driver.genBasicOutput();
 //		generatedASM = new ArrayList<String>();
 //		generatedASM.add("li $v0, 1");

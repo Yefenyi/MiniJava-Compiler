@@ -98,6 +98,7 @@ public class RegisterAllocatorSimple {
 			noRegPrefixes.add("#");
 			noRegPrefixes.add("syscall");
 			noRegPrefixes.add("nop");
+			noRegPrefixes.add("jr ");
 		}
 		for(String s : noRegPrefixes) {
 			if(ins.startsWith(s)) {
@@ -244,7 +245,7 @@ public class RegisterAllocatorSimple {
 				toReplace = this.renameReg(toReplace, oldRegName, finalRegMap.get(oldRegName));
 			}
 		}
-		return toReplace;
+		return toReplace.replace("=", "");
 	}
 	
 	private boolean stillNeedReg(int index, String reg) {
@@ -274,11 +275,18 @@ public class RegisterAllocatorSimple {
 		return a > b ? a : b;
 	}
 	
+	/**
+	 * Need to use = signs at the end so that multiple replacements don't end up blowing away previous replacements
+	 * @param ins
+	 * @param oldReg
+	 * @param newReg
+	 * @return
+	 */
 	private String renameReg(String ins, String oldReg, String newReg) {
-		ins = ins.replaceAll("\\" + oldReg + " ", "\\" + newReg + " ");
-		ins = ins.replaceAll("\\" + oldReg + ",", "\\" + newReg + ",");
-		ins = ins.replaceAll("\\" + oldReg + "\\)", "\\" + newReg + "\\)");
-		return ins.replaceAll("\\" + oldReg + "$", "\\" + newReg);
+		ins = ins.replaceAll("\\" + oldReg + " ", "\\" + newReg + "= ");
+		ins = ins.replaceAll("\\" + oldReg + ",", "\\" + newReg + "=,");
+		ins = ins.replaceAll("\\" + oldReg + "\\)", "\\" + newReg + "=\\)");
+		return ins.replaceAll("\\" + oldReg + "$", "\\" + newReg + "=");
 	}
 	
 	private List<String> allocateRegs(List<String> insList) {
@@ -296,7 +304,8 @@ public class RegisterAllocatorSimple {
 				maxReg = max(Integer.parseInt(s.split("t")[1]), maxReg);
 			}
 		}
-		stackUsed = maxReg * 4;
+		// PUT LOADS AND STORES EVERYWHERE!!!
+		stackUsed = (maxReg+1) * 4;
 		for(int i = 0 ; i < insList.size() ; ++i) {
 			for(String s : usedRegs.get(i)) {
 				List<String> assigned = new ArrayList<String>();
@@ -315,21 +324,27 @@ public class RegisterAllocatorSimple {
 				insList.add(i, "sw " + s + ", " + Integer.parseInt(s.split("t")[1]) * 4 + "($sp)");
 			}
 		}
+//		for(int i = 0 ; i < insList.size() ; ++i) {
+//			System.out.println(insList.get(i));
+//			System.out.println("Assigned: " + assignedRegs.get(i).toString());
+//			System.out.println("Used: " + usedRegs.get(i).toString());
+//		}
 		
 
 		// Get things for each register and free up as possible
 		for(int i = 0 ; i < insList.size(); ++i) {
 			for(String s : this.assignedRegs.get(i)) {
-				if(!this.finalRegMap.containsKey(s)) {
-					String usingReg = this.getFreeReg();
-					if(usingReg == null) {
-						System.out.println("HOWWW?");
-					}
-					//System.out.println("putting new thing in map: " + s + "," + usingReg);
-					this.finalRegMap.put(s, usingReg);
-					//System.out.println("testing after map add: " + s + "," + this.finalRegMap.get(s))
+				String usingReg = this.getFreeReg();
+				if(usingReg == null) {
+					System.out.println("HOWWW?");
 				}
+				//System.out.println("putting new thing in map: " + s + "," + usingReg);
+				this.finalRegMap.put(s, usingReg);
+				//System.out.println("testing after map add: " + s + "," + this.finalRegMap.get(s))
 			}
+			//System.out.println(insList.get(i));
+			//insList.set(i, replaceAllRefs(insList.get(i)));
+			//System.out.println(insList.get(i));
 			for(String s : this.assignedRegs.get(i)) {
 				if(!stillNeedReg(i, s)) {
 					this.freeRegMap.put(this.finalRegMap.get(s), true);
@@ -342,15 +357,13 @@ public class RegisterAllocatorSimple {
 					this.freeRegMap.put(this.finalRegMap.get(s), true);
 				}
 			}
-		}
-		
-		for(String s : this.finalRegMap.keySet()) {
-			System.out.println("Original: " + s + "; Final: " + this.finalRegMap.get(s));
-		}
-		
-		// Rename all regs
-		for(int i = 0 ; i < insList.size(); ++i) {
-			insList.set(i, replaceAllRefs(insList.get(i)));
+//			System.out.println("Begin used");
+//			for(String s2 : freeRegMap.keySet()) {
+//				if(!freeRegMap.get(s2)) {
+//					System.out.println(s2);
+//				}
+//			}
+//			System.out.println("End used");
 		}
 		return insList;
 	}
