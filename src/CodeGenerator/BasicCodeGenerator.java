@@ -282,11 +282,14 @@ public class BasicCodeGenerator {
 					
 					
 					if(pt.getChild(pt.getChildCount()-1).getChildCount()!=0){
-						regs.setAssignment(parrent+pt.getChild(0).getText()+pt.getChild(1).getText());
+						String child = "";
+						for(int i =0;i<pt.getChildCount()-1;i++){
+							child += pt.getChild(i).getText();
+						}
+						regs.setAssignment(parrent+child);
 						output.addAll(this.walkTree(pt.getChild(pt.getChildCount()-1)));
 					}else {
 						regs.setAssignment(parrent+pt.getText());
-						//System.err.println(parrent+pt.getText());//TODO set assignment might be broke
 					}
 					break;
 			case 16:if(debug) System.out.println("HPE: "+pt.getText());
