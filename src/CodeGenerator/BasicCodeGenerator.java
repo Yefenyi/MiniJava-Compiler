@@ -25,6 +25,7 @@ public class BasicCodeGenerator {
 	private int labelNumber =0;
 	private int methodNumber = 0;
 	private int callNumber = 0;
+	private int shortCircuit = 0;
 	boolean debug = true;
 	
 	public BasicCodeGenerator(Map<String,ParsedClass> map){
@@ -139,8 +140,12 @@ public class BasicCodeGenerator {
 					output.addAll(this.walkTree(pt.getChild(1)));
 					break;
 			case 3: if(debug) System.out.println("Or Prime: "+pt.getText());
-					output.addAll(this.walkTree(pt.getChild(1)));
+					int ss = this.shortCircuit;
+					this.shortCircuit++;
 					String parent = this.getParentsNonPrime(pt.getParent());
+					output.add("bne $zero, "+regs.getAssignment(parent)+" SS"+String.valueOf(ss));
+					output.addAll(this.walkTree(pt.getChild(1)));
+					output.add("SS"+String.valueOf(ss)+":    nop");
 					output.add("or "+regs.getNextReg()+", "+regs.getAssignment(parent)+", "+regs.getAssignment(pt.getChild(1).getText()));
 					regs.replaceReg(parent+pt.getChild(0).getText()+pt.getChild(1).getText());
 					if(pt.getChild(2).getChildCount()!=0){
@@ -152,8 +157,12 @@ public class BasicCodeGenerator {
 					output.addAll(this.walkTree(pt.getChild(1)));
 					break;
 			case 5: if(debug) System.out.println("And Prime: "+pt.getText());
-					output.addAll(this.walkTree(pt.getChild(1)));
 					parent = this.getParentsNonPrime(pt.getParent());
+					ss = this.shortCircuit;
+					this.shortCircuit++;
+					output.add("beq $zero, "+regs.getAssignment(parent)+" SS"+String.valueOf(ss));
+					output.addAll(this.walkTree(pt.getChild(1)));
+					output.add("SS"+String.valueOf(ss)+":    nop");
 					output.add("and "+regs.getNextReg()+", "+regs.getAssignment(parent)+", "+regs.getAssignment(pt.getChild(1).getText()));
 					regs.replaceReg(parent+pt.getChild(0).getText()+pt.getChild(1).getText());
 					if(pt.getChild(2).getChildCount()!=0){
