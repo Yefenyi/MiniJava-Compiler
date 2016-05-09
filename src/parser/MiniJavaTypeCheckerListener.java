@@ -74,11 +74,13 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 			ParsedClass parsedClass = new ParsedClass(className);
 			ParsedClass parrentClass = null;
 			if(classDec.getChild(2).getText().toLowerCase().equals("extends")){
-				
 				String parentName = classDec.getChild(3).getText();
 				if(this.classMap.containsKey(parentName)){
 					parrentClass = classMap.get(parentName);
 					parsedClass.setExtendsClass(parentName);
+					for(String key:parrentClass.nameToField.keySet()){
+						parsedClass.nameToField.put(key,parrentClass.nameToField.get(key));
+					}
 				}else {
 					this.addError("Cannot extend class becuase class: "+parentName+" is not defined");
 				}
@@ -507,6 +509,7 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 			}
 			String returnType = currentMethod.getReturnType();
 			while(nextCall.getChildCount()!=0){
+				
 				i=0;
 				j=0;
 				for(ParseTree child  : ((DEPContext) DEP).children ){
@@ -526,14 +529,16 @@ public class MiniJavaTypeCheckerListener extends MiniJavaBaseListener {
 					}
 					j++;
 				}
-				returnType = pc.getNameToMethod().get(DEP.getChild(1).getText()).getReturnType();
+				returnType = pc.getNameToMethod().get(DEP.getChild(1).getText()).getReturnType();	
 				pc = this.classMap.get(returnType);
+
 				DEP = nextCall;
 				currentMethod = this.getMethod(DEP.getChild(1).getText(),pc);
 				if(currentMethod==null){
 					this.addError("Method "+DEP.getChild(1).getText()+" is never declared");
 					return "null";
 				}
+				returnType = currentMethod.getReturnType();
 				nextCall = nextCall.getChild(nextCall.getChildCount()-1);
 			}
 			return returnType;

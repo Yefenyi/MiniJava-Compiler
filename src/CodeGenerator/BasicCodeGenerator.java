@@ -45,19 +45,24 @@ public class BasicCodeGenerator {
 					this.methodToNumber.put(k,methodNumber++);
 				}
 			}
-			GeneratedClass c =this.createGenClass(parsedClass,start);
-			start = c.classNumber +c.methodMap.size()*2+2;
+			
+			GeneratedClass c = new GeneratedClass(parsedClass.getName());
+			c.classNumber= start;
+			start = c.classNumber +parsedClass.getNameToMethod().size()*2+2;
+			this.genClassMap.put(c.name,c);
+		}
+		for(String key: parsedClassMap.keySet()){
+			ParsedClass parsedClass = parsedClassMap.get(key);
+			this.createGenClass(parsedClass);
 		}
 		return null;
 	}
 
-	private GeneratedClass createGenClass(ParsedClass parsedClass, int classNumber) {
-		GeneratedClass genClass = new GeneratedClass(parsedClass.getName());
-		genClass.classNumber = classNumber;
+	private void createGenClass(ParsedClass parsedClass) {
+		GeneratedClass genClass = this.genClassMap.get(parsedClass.getName());
 		Map<String,GeneratedMethod> methodMap = new HashMap<String,GeneratedMethod>();
 		genClass.setFieldMap(parsedClass.getNameToField());
-		int start =classNumber;
-		
+		int start =genClass.classNumber;
 		for(String key: parsedClass.getNameToMethod().keySet()){
 			regs.reset();
 			regs.setArguements(parsedClass.getNameToMethod().get(key).getIdentifierList());
@@ -66,8 +71,6 @@ public class BasicCodeGenerator {
 			methodMap.put(key,method);
 		}
 		genClass.setMethodMap(methodMap);
-		this.genClassMap.put(genClass.name,genClass);
-		return genClass;
 	}
 	
 	private List<String> initClasses(){
@@ -139,7 +142,7 @@ public class BasicCodeGenerator {
 					output.addAll(this.walkTree(pt.getChild(1)));
 					String parent = this.getParentsNonPrime(pt.getParent());
 					output.add("or "+regs.getNextReg()+", "+regs.getAssignment(parent)+", "+regs.getAssignment(pt.getChild(1).getText()));
-					regs.setAssignment(parent+pt.getChild(0).getText()+pt.getChild(1).getText());
+					regs.replaceReg(parent+pt.getChild(0).getText()+pt.getChild(1).getText());
 					if(pt.getChild(2).getChildCount()!=0){
 						output.addAll(this.walkTree(pt.getChild(2)));
 					}
@@ -152,7 +155,7 @@ public class BasicCodeGenerator {
 					output.addAll(this.walkTree(pt.getChild(1)));
 					parent = this.getParentsNonPrime(pt.getParent());
 					output.add("and "+regs.getNextReg()+", "+regs.getAssignment(parent)+", "+regs.getAssignment(pt.getChild(1).getText()));
-					regs.setAssignment(parent+pt.getChild(0).getText()+pt.getChild(1).getText());
+					regs.replaceReg(parent+pt.getChild(0).getText()+pt.getChild(1).getText());
 					if(pt.getChild(2).getChildCount()!=0){
 						output.addAll(this.walkTree(pt.getChild(2)));
 					}
@@ -173,7 +176,7 @@ public class BasicCodeGenerator {
 					}else{
 						output.add("sge "+regs.getNextReg()+", "+regs.getAssignment(parent)+", "+regs.getAssignment(pt.getChild(1).getText()));
 					}
-					regs.setAssignment(parent+pt.getChild(0).getText()+pt.getChild(1).getText());
+					regs.replaceReg(parent+pt.getChild(0).getText()+pt.getChild(1).getText());
 					break;
 			case 8: if(debug) System.out.println("Comparision: "+pt.getText());
 					output.addAll(this.walkTree(pt.getChild(0)));
@@ -195,8 +198,7 @@ public class BasicCodeGenerator {
 			case 10:if(debug) System.out.println("Add or Sub Prime: "+pt.getText());
 					output.addAll(this.walkTree(pt.getChild(1)));
 					String parentString = this.getParentsNonPrime(pt.getParent());
-					//TODO this might have to go to all the expressions 
-					regs.setAssignment(parentString+pt.getChild(0).getText()+pt.getChild(1).getText());
+					regs.replaceReg(parentString+pt.getChild(0).getText()+pt.getChild(1).getText());
 					Register reg = regs.getAssignment(parentString+pt.getChild(0).getText()+pt.getChild(1).getText());
 					if(pt.getChild(0).getText().equals("+")){
 						output.add("add "+reg+", "+regs.getAssignment(parentString)+", "+regs.getAssignment(pt.getChild(1).getText()));
@@ -215,13 +217,14 @@ public class BasicCodeGenerator {
 			case 12:if(debug) System.out.println("Multiply or divide Prime: "+pt.getText());
 					output.addAll(this.walkTree(pt.getChild(1)));
 					parentString = this.getParentsNonPrime(pt.getParent());
+					regs.replaceReg(parentString+pt.getChild(0).getText()+pt.getChild(1).getText());
+					reg = regs.getAssignment(parentString+pt.getChild(0).getText()+pt.getChild(1).getText());
 					if(pt.getChild(0).getText().equals("*")){
 						output.add("mult "+regs.getAssignment(parentString)+", "+regs.getAssignment(pt.getChild(1).getText()));
 					}else{
 						output.add("div "+regs.getAssignment(parentString)+", "+regs.getAssignment(pt.getChild(1).getText()));
 					}
-					output.add("mflo "+regs.getNextReg());
-					regs.setAssignment(parentString+pt.getChild(0).getText()+pt.getChild(1).getText());
+					output.add("mflo "+reg);
 					if(pt.getChild(2).getChildCount()!=0){
 						output.addAll(this.walkTree(pt.getChild(2)));
 					}
@@ -234,7 +237,7 @@ public class BasicCodeGenerator {
 					}else{
 						output.add("sub "+regs.getNextReg()+", $zero"+", "+exp);
 					}
-					regs.setAssignment(pt.getText());
+					regs.replaceReg(pt.getText());
 					break;
 			case 14:if(debug) System.out.println("Function call: "+pt.getText());
 					output.addAll(this.walkTree(pt.getChild(0)));
@@ -276,7 +279,15 @@ public class BasicCodeGenerator {
 					output.add("lw $ra 0($sp)");
 					output.add("addi $sp, $sp, 4");
 					output.add("move "+regs.getNextReg()+", $v0");
-					regs.setAssignment(parrent+pt.getText());
+					
+					
+					if(pt.getChild(pt.getChildCount()-1).getChildCount()!=0){
+						regs.setAssignment(parrent+pt.getChild(0).getText()+pt.getChild(1).getText());
+						output.addAll(this.walkTree(pt.getChild(pt.getChildCount()-1)));
+					}else {
+						regs.setAssignment(parrent+pt.getText());
+						//System.err.println(parrent+pt.getText());//TODO set assignment might be broke
+					}
 					break;
 			case 16:if(debug) System.out.println("HPE: "+pt.getText());
 					if(pt.getChildCount()==3){// ( pt ) or system.in.readInt
@@ -371,7 +382,7 @@ public class BasicCodeGenerator {
 	}
 
 	private int getSize(String genClass) {
-		return (2+this.genClassMap.get(genClass).fieldMap.size())*4;
+		return (2+this.parsedClassMap.get(genClass).getNameToField().size())*4;
 	}
 
 	private List<String> getStmtString(ParseTree pt) {
@@ -403,6 +414,11 @@ public class BasicCodeGenerator {
 		} else if(pt.getChildCount()==4){
 			output.add("#variable assignment");
 			output.addAll(this.walkTree(pt.getChild(2)));
+			if(this.currentClassVariables.containsKey(pt.getChild(0).getText())){
+				this.regs.setAssignment(pt.getChild(0).getText());
+				output.add("lw "+regs.getAssignment(pt.getChild(0).getText())+", "+
+				String.valueOf(this.getIndex(pt.getChild(0).getText(),this.currentClassVariables)*4+8)+"($a0)");
+			}
 			output.add("add "+regs.getAssignment(pt.getChild(0).getText())+", " + regs.getAssignment(pt.getChild(2).getText())+", $zero");
 			if(this.currentClassVariables!=null&&this.currentClassVariables.containsKey(pt.getChild(0).getText())){
 				//Memory needs to be updated
@@ -437,6 +453,12 @@ public class BasicCodeGenerator {
 		int type = BasicCodeGenerator.getCaseNumber(pt);
 		if(type==2||type==4||type==6||type==8||type==9||type==11||type==13||type==14){
 			return pt.getChild(0).getText();
+		}else if(type == 15){
+			String out = this.getParentsNonPrime(pt.getParent());
+			for(int i = 0;i<pt.getChildCount()-1;i++){
+				out += pt.getChild(i).getText();
+			}
+			return out;
 		}else{
 			return this.getParentsNonPrime(pt.getParent())+pt.getChild(0).getText()+pt.getChild(1).getText();
 		}

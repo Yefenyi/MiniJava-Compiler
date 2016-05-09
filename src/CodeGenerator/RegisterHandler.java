@@ -78,4 +78,14 @@ public class RegisterHandler {
 		}
 	}
 
+	public void replaceReg(String pt) {
+		if(this.getAssignment(pt)==zero){
+			this.setAssignment(pt);
+		}else{
+			this.getAssignment(pt).represents=null;
+			this.setAssignment(pt);
+		}
+		
+	}
+
 }
