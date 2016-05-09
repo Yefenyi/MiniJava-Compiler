@@ -493,6 +493,10 @@ public class BasicCodeGenerator {
 				output.add("m"+String.valueOf(genClass.methodMap.get(method).methodNumber)+": nop" + "    #"+key+"."+method);
 				output.addAll(genClass.methodMap.get(method).code);
 			}
+			if(key.equals(this.main)){
+				output.add("li $v0, 10");
+				output.add("syscall");
+			}
 		}
 		return output;
 	}
