@@ -343,7 +343,7 @@ public class RegisterAllocatorSimple {
 				//System.out.println("testing after map add: " + s + "," + this.finalRegMap.get(s))
 			}
 			//System.out.println(insList.get(i));
-			//insList.set(i, replaceAllRefs(insList.get(i)));
+			insList.set(i, replaceAllRefs(insList.get(i)));
 			//System.out.println(insList.get(i));
 			for(String s : this.assignedRegs.get(i)) {
 				if(!stillNeedReg(i, s)) {

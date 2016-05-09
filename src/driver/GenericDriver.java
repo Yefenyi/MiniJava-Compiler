@@ -87,8 +87,13 @@ public class GenericDriver {
 		
 		//gen.generate(); 
 		//return gen.getProgram();
-		PeepHoleOptimizer optimizer = new PeepHoleOptimizer(gen.genClassMap);
-		optimizer.run();
-		return regAllocator.allocateAllRegs(gen.getProgram());
+		//PeepHoleOptimizer optimizer = new PeepHoleOptimizer(gen.genClassMap);
+		//optimizer.run();
+		List<String> orig = gen.getProgram();
+//		System.out.println("=====ORIGINAL=====\n");
+//		for(String s : orig) {
+//			System.out.println(s);
+//		}
+		return regAllocator.allocateAllRegs(orig);
 	}
 }
