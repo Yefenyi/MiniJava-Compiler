@@ -262,7 +262,6 @@ public class BasicCodeGenerator {
 						output.addAll(this.walkTree(pt.getChild(i)));
 					}
 					output.add("#preCall");
-					
 					output.add("move $a0, "+pointer);
 					int j =1;
 					for(int i=3;i<pt.getChildCount()-2;i+=2){
@@ -515,13 +514,15 @@ public class BasicCodeGenerator {
 			for(String m:c.methodMap.keySet()){
 				GeneratedMethod method= c.methodMap.get(m);
 				int index =0;
-				for(int i=0;i<method.code.size();i++){
-					if(method.code.get(i).equals("#exit environment")){
-						index = i;
+				if(!key.equals(this.main)){
+					for(int i=0;i<method.code.size();i++){
+						if(method.code.get(i).equals("#exit environment")){
+							index = i;
+						}
 					}
+					method.code.remove(index);
+					method.code.add(method.code.size()-1,"#exit environment");
 				}
-				method.code.remove(index);
-				method.code.add(method.code.size()-1,"#exit environment");
 			}
 		}
 		
