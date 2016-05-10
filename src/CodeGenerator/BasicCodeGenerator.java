@@ -262,6 +262,11 @@ public class BasicCodeGenerator {
 						output.addAll(this.walkTree(pt.getChild(i)));
 					}
 					output.add("#preCall");
+					output.add("subi $sp, $sp, 16");
+					output.add("sw $a0, 0($sp)");
+					output.add("sw $a1, 4($sp)");
+					output.add("sw $a2, 8($sp)");
+					output.add("sw $a3, 12($sp)");
 					output.add("move $a0, "+pointer);
 					int j =1;
 					for(int i=3;i<pt.getChildCount()-2;i+=2){
@@ -286,6 +291,11 @@ public class BasicCodeGenerator {
 					output.add("#postCall");
 					output.add("lw $ra 0($sp)");
 					output.add("addi $sp, $sp, 4");
+					output.add("lw $a0, 0($sp)");
+					output.add("lw $a1, 4($sp)");
+					output.add("lw $a2, 8($sp)");
+					output.add("lw $a3, 12($sp)");
+					output.add("addi $sp, $sp, 16");
 					output.add("move "+regs.getNextReg()+", $v0");
 					
 					

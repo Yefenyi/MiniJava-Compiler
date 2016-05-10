@@ -14,6 +14,7 @@ public class RegisterAllocatorSimple {
 	private List<List<String>> assignedRegs;
 	private List<String> labels;
 	private Map<String,Boolean> freeRegMap;
+	private boolean inCall;
 	private int maxReg;
 	private int stackUsed;
 	
@@ -28,6 +29,7 @@ public class RegisterAllocatorSimple {
 	
 	private void resetEnvironment() {
 		maxReg = -1;
+		inCall = false;
 		finalRegMap = new HashMap<String,String>();
 		usedRegs = new ArrayList<List<String>>();
 		assignedRegs = new ArrayList<List<String>>();
@@ -82,6 +84,7 @@ public class RegisterAllocatorSimple {
 			iTypePrefixes = new HashSet<String>();
 			iTypePrefixes.add("xori ");
 			iTypePrefixes.add("addi ");
+			iTypePrefixes.add("subi ");
 		}
 		for(String s : iTypePrefixes) {
 			if(ins.startsWith(s)) {
@@ -218,7 +221,7 @@ public class RegisterAllocatorSimple {
 			if(otherReg.contains("t")) {
 				usedReg.add(otherReg);
 			}
-		} else if(ins.startsWith("beq ")) {
+		} else if(ins.startsWith("beq ") || ins.startsWith("bne ")) {
 			String[] parts = ins.split(" ");
 			if(parts[1].contains("t")) {
 				usedReg.add(parts[1].replace(",", ""));
@@ -307,12 +310,18 @@ public class RegisterAllocatorSimple {
 		// PUT LOADS AND STORES EVERYWHERE!!!
 		stackUsed = (maxReg+1) * 4;
 		for(int i = 0 ; i < insList.size() ; ++i) {
+			if(insList.get(i).equals("#preCall")) {
+				inCall = true;
+			}
+			if(insList.get(i).equals("#postCall")) {
+				inCall = false;
+			}
 			for(String s : usedRegs.get(i)) {
 				List<String> assigned = new ArrayList<String>();
 				assigned.add(s);
 				assignedRegs.add(i, assigned);
 				usedRegs.add(i, new ArrayList<String>());
-				insList.add(i, "lw " + s + ", " + Integer.parseInt(s.split("t")[1]) * 4 + "($sp)");
+				insList.add(i, "lw " + s + ", " + Integer.parseInt((s.split("t")[1]) + (inCall ? 4 : 0)) * 4 + "($sp)");
 				++i;
 			}
 			for(String s : assignedRegs.get(i)) {
@@ -321,7 +330,7 @@ public class RegisterAllocatorSimple {
 				used.add(s);
 				usedRegs.add(i, used);
 				assignedRegs.add(i, new ArrayList<String>());
-				insList.add(i, "sw " + s + ", " + Integer.parseInt(s.split("t")[1]) * 4 + "($sp)");
+				insList.add(i, "sw " + s + ", " + Integer.parseInt((s.split("t")[1]) + (inCall ? 4 : 0)) * 4 + "($sp)");
 			}
 		}
 //		for(int i = 0 ; i < insList.size() ; ++i) {
