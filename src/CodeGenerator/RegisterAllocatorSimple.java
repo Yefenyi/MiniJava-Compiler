@@ -210,7 +210,7 @@ public class RegisterAllocatorSimple {
 			}
 			String otherReg = parts[2].split("\\(")[1].split("\\)")[0];
 			if(otherReg.contains("t")) {
-				assignedReg.add(otherReg);
+				usedReg.add(otherReg);
 			}
 		} else if(ins.startsWith("lw ")) {
 			String[] parts = ins.split(" ");
