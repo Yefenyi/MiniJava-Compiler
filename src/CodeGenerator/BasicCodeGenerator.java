@@ -26,6 +26,7 @@ public class BasicCodeGenerator {
 	private int methodNumber = 0;
 	private int callNumber = 0;
 	private int shortCircuit = 0;
+	private int classInstance =0;
 	boolean debug = true;
 	
 	public BasicCodeGenerator(Map<String,ParsedClass> map){
@@ -255,6 +256,7 @@ public class BasicCodeGenerator {
 			case 15:if(debug) System.out.println("Function call prime: "+pt.getText());
 					String parrent = this.getParentsNonPrime(pt.getParent());
 					Register pointer = regs.getAssignment(parrent);
+					System.err.println(parrent +":"+pointer);
 					//TODO 
 					//Most Likely spot for something to go wrong
 					//this is the first arg
@@ -314,25 +316,29 @@ public class BasicCodeGenerator {
 					if(pt.getChildCount()==3){// ( pt ) or system.in.readInt
 						if(pt.getChild(0).getText().equals("(")){
 							output.addAll(this.walkTree(pt.getChild(1)));
-							regs.replaceLast(pt.getText());
+							output.add("move "+regs.getNextReg()+", "+regs.getAssignment(pt.getChild(1).getText()));
+							regs.replaceReg(pt.getText());
 						} else {
 							output.add("li $v0, 5");
 							output.add("syscall");
-							regs.setAssignment(pt.getText());
+							regs.replaceReg(pt.getText());
 							output.add("move "+regs.getAssignment(pt.getText())+", $v0");
 						}
 					}else if(pt.getChildCount()==4){
 						// new id()
 						String genClass = pt.getChild(1).getText();
+						regs.replaceReg(pt.getText());
+						System.err.println(pt.getText());
+						Register r = regs.getAssignment(pt.getText());
 						output.add("#allocate a "+genClass);
 						output.add("li $v0, 9");
 						output.add("li $a0, "+String.valueOf(this.getSize(genClass)));
 						output.add("syscall");
-						output.add("addi "+regs.getNextReg()+", $gp, "+String.valueOf(this.genClassMap.get(genClass).classNumber*4));
-						output.add("sw "+regs.getNextReg()+", 0($v0)");//$v0 is the pointer
+						output.add("addi "+r+", $gp, "+String.valueOf(this.genClassMap.get(genClass).classNumber*4));
+						output.add("sw "+r+", 0($v0)");//$v0 is the pointer
 						output.add("sw $a0, 4($v0)");
-						output.add("move "+regs.getNextReg()+", $v0");
-						regs.replaceReg(pt.getText());
+						output.add("move "+r+", $v0");
+						System.err.println(regs.getAssignment(pt.getText()));//TODO
 					}else{
 						//Just a variable that should already have been created
 					}
