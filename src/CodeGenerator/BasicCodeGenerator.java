@@ -20,6 +20,7 @@ public class BasicCodeGenerator {
 	public Map<String,GeneratedClass> genClassMap = new HashMap<String,GeneratedClass>();
 	private Map<String,Integer> methodToNumber = new HashMap<String, Integer>();
 	private Map<String, ParsedIdentifier> currentClassVariables;
+	private List<ParsedIdentifier> currentArgs;
 	private RegisterHandler regs;
 	private String main;
 	private int labelNumber =0;
@@ -67,7 +68,6 @@ public class BasicCodeGenerator {
 		int start =genClass.classNumber;
 		for(String key: parsedClass.getNameToMethod().keySet()){
 			regs.reset();
-			regs.setArguements(parsedClass.getNameToMethod().get(key).getIdentifierList());
 			GeneratedMethod  method  = this.createGenMethod(parsedClass.getNameToMethod().get(key).getIdentifierList(),parsedClass.getNameToMethod().get(key),parsedClass.getNameToField());
 			method.methodNumber = start++;
 			methodMap.put(key,method);
@@ -112,10 +112,7 @@ public class BasicCodeGenerator {
 		ParseTree pt = parsedMethod.getTree();
 		List<String> code = new ArrayList<String>();
 		currentClassVariables = map;
-		for(int i=3;list!=null &&(i<list.size());i++){
-			code.add("lw "+regs.getNextReg()+", "+String.valueOf(4*(i-3))+"($sp)");
-			regs.setAssignment(list.get(i).name);
-		}
+		this.currentArgs = list;
 		code.addAll(this.walkTree(pt));
 		currentClassVariables = null;
 		return new GeneratedMethod(parsedMethod.getName(),code);
@@ -265,10 +262,10 @@ public class BasicCodeGenerator {
 					}
 					output.add("#preCall");
 					output.add("subi $sp, $sp, 16");//MOVE TO REGISTER ALLOCATER
-					output.add("sw $a0, 0($sp)");
-					output.add("sw $a1, 4($sp)");
-					output.add("sw $a2, 8($sp)");
-					output.add("sw $a3, 12($sp)");
+					//output.add("sw $a0, 0($sp)");
+					//output.add("sw $a1, 4($sp)");
+					//output.add("sw $a2, 8($sp)");
+					//output.add("sw $a3, 12($sp)");
 					output.add("move $a0, "+pointer);
 					int j =1;
 					for(int i=3;i<pt.getChildCount()-2;i+=2){
@@ -293,10 +290,10 @@ public class BasicCodeGenerator {
 					output.add("#postCall");
 					output.add("lw $ra 0($sp)");
 					output.add("addi $sp, $sp, 4");
-					output.add("lw $a0, 0($sp)");
-					output.add("lw $a1, 4($sp)");
-					output.add("lw $a2, 8($sp)");
-					output.add("lw $a3, 12($sp)");
+					//output.add("lw $a0, 0($sp)");
+					//output.add("lw $a1, 4($sp)");
+					//output.add("lw $a2, 8($sp)");
+					//output.add("lw $a3, 12($sp)");
 					output.add("addi $sp, $sp, 16");
 					output.add("move "+regs.getNextReg()+", $v0");
 					
@@ -352,7 +349,8 @@ public class BasicCodeGenerator {
 						if(this.currentClassVariables.containsKey(pt.getText())){
 							this.regs.setAssignment(pt.getText());
 							output.add("lw "+regs.getAssignment(pt.getText())+", "+
-							String.valueOf(this.getIndex(pt.getText(),this.currentClassVariables)*4+8)+"($a0)");
+							String.valueOf(this.getIndex(pt.getText(),this.currentClassVariables)*4+8)+
+							"("+regs.getAssignment("this")+")");
 						}
 					}else if(((Token) pt.getPayload()).getType()==MiniJavaLexer.FALSE){
 						this.regs.setAssignment("false");
@@ -367,9 +365,21 @@ public class BasicCodeGenerator {
 			case 18:if(debug) System.out.println("Method: "+pt.getText());
 					int index =0;
 					for(;!(pt.getChild(index)instanceof MiniJavaParser.StmtListContext);index++);
+					regs.setAssignment("this");
+					output.add("#enter environment");
+					output.add("move "+regs.getAssignment("this")+", $a0");
+					for(int i=0;currentArgs!=null&&i<3&&i<currentArgs.size();i++){
+						regs.setAssignment(currentArgs.get(i).getName());
+						output.add("move "+regs.getAssignment(currentArgs.get(i).getName())+", $a"+String.valueOf(i+1));
+					}
+					for(int i=3;currentArgs!=null &&(i<currentArgs.size());i++){
+						output.add("lw "+regs.getNextReg()+", "+String.valueOf(4*(i-3))+"($sp)");
+						regs.setAssignment(currentArgs.get(i).name);
+					}
 					output.addAll(this.walkTree(pt.getChild(index)));
 					output.addAll(this.walkTree(pt.getChild(index+2)));
 					output.add("move $v0 ,"+regs.getAssignment(pt.getChild(index+2).getText()));
+					output.add("#exit environment");
 					output.add("jr $ra");
 					break;
 			default:if(debug) System.out.println("unidentifed case: "+pt.getText());
@@ -444,12 +454,14 @@ public class BasicCodeGenerator {
 			if(this.currentClassVariables.containsKey(pt.getChild(0).getText())){
 				this.regs.setAssignment(pt.getChild(0).getText());
 				output.add("lw "+regs.getAssignment(pt.getChild(0).getText())+", "+
-				String.valueOf(this.getIndex(pt.getChild(0).getText(),this.currentClassVariables)*4+8)+"($a0)");
+				String.valueOf(this.getIndex(pt.getChild(0).getText(),this.currentClassVariables)*4+8)+"("
+						+regs.getAssignment("this")+")");
 			}
 			output.add("add "+regs.getAssignment(pt.getChild(0).getText())+", " + regs.getAssignment(pt.getChild(2).getText())+", $zero");
 			if(this.currentClassVariables!=null&&this.currentClassVariables.containsKey(pt.getChild(0).getText())){
 				//Memory needs to be updated
-				output.add("sw "+regs.getAssignment(pt.getChild(0).getText())+", "+String.valueOf(8+4*this.getIndex(pt.getChild(0).getText(),this.currentClassVariables)+"($a0)"));
+				output.add("sw "+regs.getAssignment(pt.getChild(0).getText())+", "+String.valueOf(8+4*this.getIndex(pt.getChild(0).getText(),
+						this.currentClassVariables)+"("+regs.getAssignment("this")+")"));
 			}
 		} else{
 			int elsePoint = this.labelNumber++;

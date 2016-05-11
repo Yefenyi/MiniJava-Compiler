@@ -31,11 +31,6 @@ public class RegisterHandler {
 				return reg;
 			}
 		}
-		for(Register reg : mem){
-			if(reg.sameTree(pt)){
-				return reg;
-			}
-		}
 		return zero;
 	}
 	
@@ -67,15 +62,6 @@ public class RegisterHandler {
 			reg.represents=null;
 		}
 		this.nextReg=0;
-	}
-
-	public void setArguements(List<ParsedIdentifier> identifierList) {
-		mem.get(0).setTree("this");
-		if(identifierList!=null){
-		for(int i=0;i<identifierList.size()&&i<3;i++){
-			mem.get(i+1).setTree(identifierList.get(i).name);
-		}
-		}
 	}
 
 	public void replaceReg(String pt) {
