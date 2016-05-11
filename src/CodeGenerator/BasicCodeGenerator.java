@@ -262,7 +262,7 @@ public class BasicCodeGenerator {
 						output.addAll(this.walkTree(pt.getChild(i)));
 					}
 					output.add("#preCall");
-					output.add("subi $sp, $sp, 16");
+					output.add("subi $sp, $sp, 16");//MOVE TO REGISTER ALLOCATER
 					output.add("sw $a0, 0($sp)");
 					output.add("sw $a1, 4($sp)");
 					output.add("sw $a2, 8($sp)");
@@ -307,7 +307,7 @@ public class BasicCodeGenerator {
 						regs.setAssignment(parrent+child);
 						output.addAll(this.walkTree(pt.getChild(pt.getChildCount()-1)));
 					}else {
-						regs.setAssignment(parrent+pt.getText());
+						regs.replaceReg(parrent+pt.getText());
 					}
 					break;
 			case 16:if(debug) System.out.println("HPE: "+pt.getText());
@@ -332,7 +332,7 @@ public class BasicCodeGenerator {
 						output.add("sw "+regs.getNextReg()+", 0($v0)");//$v0 is the pointer
 						output.add("sw $a0, 4($v0)");
 						output.add("move "+regs.getNextReg()+", $v0");
-						regs.setAssignment(pt.getText());
+						regs.replaceReg(pt.getText());
 					}else{
 						//Just a variable that should already have been created
 					}
