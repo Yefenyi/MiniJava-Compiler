@@ -321,7 +321,7 @@ public class RegisterAllocatorSimple {
 				assigned.add(s);
 				assignedRegs.add(i, assigned);
 				usedRegs.add(i, new ArrayList<String>());
-				insList.add(i, "lw " + s + ", " + Integer.parseInt((s.split("t")[1]) + (inCall ? 4 : 0)) * 4 + "($sp)");
+				insList.add(i, "lw " + s + ", " + (Integer.parseInt((s.split("t")[1])) +  + (inCall ? 4 : 0)) * 4 + "($sp)");
 				++i;
 			}
 			for(String s : assignedRegs.get(i)) {
@@ -330,7 +330,7 @@ public class RegisterAllocatorSimple {
 				used.add(s);
 				usedRegs.add(i, used);
 				assignedRegs.add(i, new ArrayList<String>());
-				insList.add(i, "sw " + s + ", " + Integer.parseInt((s.split("t")[1]) + (inCall ? 4 : 0)) * 4 + "($sp)");
+				insList.add(i, "sw " + s + ", " + (Integer.parseInt((s.split("t")[1])) +  + (inCall ? 4 : 0)) * 4 + "($sp)");
 			}
 		}
 //		for(int i = 0 ; i < insList.size() ; ++i) {
