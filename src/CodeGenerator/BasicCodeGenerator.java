@@ -325,7 +325,6 @@ public class BasicCodeGenerator {
 						// new id()
 						String genClass = pt.getChild(1).getText();
 						regs.replaceReg(pt.getText());
-						System.err.println(pt.getText());
 						Register r = regs.getAssignment(pt.getText());
 						output.add("#allocate a "+genClass);
 						output.add("li $v0, 9");
@@ -335,7 +334,11 @@ public class BasicCodeGenerator {
 						output.add("sw "+r+", 0($v0)");//$v0 is the pointer
 						output.add("sw $a0, 4($v0)");
 						output.add("move "+r+", $v0");
-						System.err.println(regs.getAssignment(pt.getText()));//TODO
+					}else if(this.currentClassVariables.containsKey(pt.getText())){
+						this.regs.setAssignment(pt.getText());
+						output.add("lw "+regs.getAssignment(pt.getText())+", "+
+						String.valueOf(this.getIndex(pt.getText(),this.currentClassVariables)*4+8)+
+						"("+regs.getAssignment("this")+")");
 					}else{
 						//Just a variable that should already have been created
 					}
