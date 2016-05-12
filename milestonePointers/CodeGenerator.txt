@@ -1,0 +1,7 @@
+To test our code generator we have a tester in test/lex called FullCodeGeneratorTest.java. Running this 
+file will run our code generator and create testAsmOutTestCase##_##.asm which is then run in by the mars.jar
+located in the root directory. The output of running the assembly files is placed written to 
+asmFileOutputTestCase##_##.out_gen which is then compared against the expexcted output. You can manually run 
+the asm files by running the mars.jar file to verify the test case.
+
+Our code for this is all located in src/codeGenerator
