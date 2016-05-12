@@ -99,8 +99,8 @@ public class FullCodeGeneratorTest {
 //		generatedASM.add("li $v0, 1");
 //		generatedASM.add("li $a0, 2");
 //		generatedASM.add("syscall");
-		String asmFileName = "testAsmOut" + this.filePrefix + ".asm";
-		String asmOutputName = "asmFileOutput" + this.filePrefix + ".out_gen";
+		String asmFileName = "./input_output/temp/testAsmOut" + this.filePrefix + ".asm";
+		String asmOutputName = "./input_output/temp/asmFileOutput" + this.filePrefix + ".out_gen";
 		File fileOut = new File(asmFileName);
 		try {
 			BufferedWriter bw = new BufferedWriter(new FileWriter(fileOut));
